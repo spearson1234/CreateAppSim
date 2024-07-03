@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Creator</title>
+<style>
+  /* Body styles */
+  body {
+    background-color: #1e1e1e;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Background bubble animation */
+  .background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .circle {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+    animation: circleAnimation 10s linear infinite;
+    mix-blend-mode: overlay;
+  }
+
+  .circle:nth-child(1) {
+    top: 20%;
+    left: 10%;
+    animation-duration: 8s;
+  }
+
+  .circle:nth-child(2) {
+    top: 50%;
+    left: 70%;
+    animation-duration: 10s;
+  }
+
+  .circle:nth-child(3) {
+    top: 80%;
+    left: 30%;
+    animation-duration: 12s;
+  }
+
+  @keyframes circleAnimation {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-1000px) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  /* Container styles */
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* Input and button styles */
+  input[type="text"] {
+    font-size: 16px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #2c2c2c;
+    color: #fff;
+    width: 300px;
+    margin-bottom: 10px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+
+  /* App container styles */
+  .app-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* App card styles */
+  .app-card {
+    background-color: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 200px;
+    margin-bottom: 20px;
+    flex-shrink: 0; /* Prevent cards from shrinking on small screens */
+  }
+
+  .app-card h3 {
+    margin-top: 0;
+  }
+
+  .app-card p {
+    margin: 5px 0;
+    font-size: 16px; /* Increase font size */
+    color: #fff; /* Ensure text color is white */
+  }
+
+  .fame {
+    font-weight: bold;
+    color: #FFD700; /* Gold color */
+  }
+
+  /* Top left corner text */
+  .top-left {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 20px; /* Increase font size */
+    color: #FFD700; /* Yellow color */
+    font-weight: bold;
+    z-index: 999; /* Ensure it's above other content */
+  }
+
+  /* Bottom right corner balance */
+  .bottom-right {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 16px; /* Increase font size */
+    font-weight: bold;
+    color: #FFD700; /* Yellow color */
+    z-index: 999; /* Ensure it's above other content */
+  }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .modal-content {
+    background-color: #2c2c2c;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 300px;
+    text-align: center;
+    border-radius: 10px;
+    color: white;
+    position: relative;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: #ccc;
+    text-decoration: none;
+  }
+
+  .modal-header {
+    padding: 2px 16px;
+    background-color: #4caf50;
+    color: white;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 10px;
+  }
+
+  .shop-button {
+    font-size: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4CAF50;
+    margin-bottom: 20px;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+  }
+
+  /* Buy button */
+  .buy-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .buy-button.owned {
+    background-color: #f44336; /* Red color */
+  }
+
+  /* Tiktok card */
+  .app-card.tiktok {
+    background-color: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 200px;
+    margin: auto; /* Center the card */
+  }
+
+  .app-card.tiktok h3 {
+    margin-top: 0;
+    color: #FFD700; /* Yellow color */
+  }
+
+  .app-card.tiktok p {
+    margin: 5px 0;
+    font-size: 16px; /* Increase font size */
+    color: #fff; /* Ensure text color is white */
+  }
+
+  /* Ensure modal is scrollable */
+  @media screen and (max-width: 600px) {
+    .modal-content {
+      max-height: 80%;
+      overflow-y: auto;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="background">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
+  <div class="top-left">Famous</div>
+  <div class="bottom-right">Balance: <span id="balance">$8B</span></div>
+  <div class="container">
+    <input type="text" id="app-name" placeholder="Enter app name">
+    <button onclick="createApp()">Create App</button>
+    <div id="app-container" class="app-container">
+      <div class="app-card fame">
+        <h3>Snapchat</h3>
+        <p>Visits: 836M</p>
+        <p>Likes: 879M</p>
+        <p>Comments: 55M</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop Modal -->
+  <div id="shopModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeShopModal()">&times;</span>
+      <div class="modal-header">
+        <h2>Shop</h2>
+      </div>
+      <div class="app-card tiktok">
+        <h3>Tiktok</h3>
+        <p>Visits: 88M</p>
+        <p>Likes: 45M</p>
+        <p>Comments: 145M</p>
+        <button id="buyButton" class="buy-button" onclick="buyTiktok()">Buy for $22M</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop Button -->
+  <button class="shop-button" onclick="openShopModal()">🛒</button>
+
+  <script>
+    let appCount = 0;
+    let visitInterval = 10000; // 10 seconds
+    let likeInterval = 15000; // 15 seconds
+    let commentInterval = 20000; // 20 seconds
+    let balance = 8000000000; // $8B initial balance
+    let tiktokOwned = false;
+
+    function createApp() {
+      const appName = document.getElementById('app-name').value;
+      if (appName) {
+        const appCard = document.createElement('div');
+        appCard.classList.add('app-card');
+        appCard.innerHTML = `
+          <h3>${appName}</h3>
+          <p>Visits: 0</p>
+          <p>Likes: 0</p>
+          <p>Comments: 0</p>
+        `;
+        document.getElementById('app-container').appendChild(appCard);
+        document.getElementById('app-name').value = '';
+
+        setInterval(() => updateVisits(appCard), visitInterval);
+        setInterval(() => updateLikes(appCard), likeInterval);
+        setInterval(() => updateComments(appCard), commentInterval);
+
+        appCount++;
+        if (appCount % 2 === 0) {
+          appCard.style.marginRight = '20px'; // Add margin between cards
+        }
+      }
+    }
+
+    function updateVisits(appCard) {
+      const visitsElement = appCard.querySelector('p:nth-of-type(1)');
+      let visits = parseInt(visitsElement.textContent.split(': ')[1]);
+      visits++;
+      visitsElement.textContent = `Visits: ${visits}`;
+
+      if (visits >= 12) {
+        document.querySelector('.top-left').textContent = 'Known';
+        visitInterval = 5000; // 5 seconds
+        likeInterval = 7500; // 7.5 seconds
+      }
+
+      if (visits >= 20) {
+        document.querySelector('.top-left').textContent = 'Known well';
+        visitInterval = 2500; // 2.5 seconds
+        likeInterval = 5000; // 5 seconds
+      }
+    }
+
+    function updateLikes(appCard) {
+      const likesElement = appCard.querySelector('p:nth-of-type(2)');
+      let likes = parseInt(likesElement.textContent.split(': ')[1]);
+      likes++;
+      likesElement.textContent = `Likes: ${likes}`;
+    }
+
+    function updateComments(appCard) {
+      const commentsElement = appCard.querySelector('p:nth-of-type(3)');
+      let comments = parseInt(commentsElement.textContent.split(': ')[1]);
+      comments++;
+      commentsElement.textContent = `Comments: ${comments}`;
+    }
+
+    function openShopModal() {
+      document.getElementById('shopModal').style.display = 'block';
+    }
+
+    function closeShopModal() {
+      document.getElementById('shopModal').style.display = 'none';
+    }
+
+    function buyTiktok() {
+      const tiktokPrice = 22000000; // $22M
+      if (balance >= tiktokPrice && !tiktokOwned) {
+        balance -= tiktokPrice;
+        document.getElementById('balance').textContent = formatBalance(balance);
+        document.querySelector('.bottom-right').textContent = `Balance: ${formatBalance(balance)}`;
+
+        const tiktokCard = document.createElement('div');
+        tiktokCard.classList.add('app-card', 'tiktok');
+        tiktokCard.innerHTML = `
+          <h3>Tiktok</h3>
+          <p>Visits: 88M</p>
+          <p>Likes: 45M</p>
+          <p>Comments: 145M</p>
+        `;
+        document.getElementById('app-container').appendChild(tiktokCard);
+
+        // Update button to Owned
+        const buyButton = document.getElementById('buyButton');
+        buyButton.textContent = 'Purchased';
+        buyButton.classList.add('owned');
+
+        tiktokOwned = true; // Mark Tiktok as owned
+        closeShopModal();
+      } else if (tiktokOwned) {
+        alert('You already own Tiktok!');
+      } else {
+        alert('Insufficient balance to buy Tiktok!');
+      }
+    }
+
+    function formatBalance(balance) {
+      if (balance >= 1000000000) {
+        return `$${(balance / 1000000000).toFixed(1)}B`;
+      } else if (balance >= 1000000) {
+        return `$${(balance / 1000000).toFixed(1)}M`;
+      } else if (balance >= 1000) {
+        return `$${(balance / 1000).toFixed(1)}K`;
+      } else {
+        return `$${balance}`;
+      }
+    }
+  </script>
+</body>
+</html>
