@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>App Creator</title>
 <style>
-  /* Body styles */
   body {
     background-color: #1e1e1e;
     color: #fff;
@@ -14,7 +13,6 @@
     padding: 0;
   }
 
-  /* Background bubble animation */
   .background {
     position: absolute;
     width: 100%;
@@ -64,7 +62,6 @@
     }
   }
 
-  /* Container styles */
   .container {
     display: flex;
     flex-direction: column;
@@ -73,7 +70,6 @@
     padding: 20px;
   }
 
-  /* Input and button styles */
   input[type="text"] {
     font-size: 16px;
     padding: 10px;
@@ -96,7 +92,6 @@
     margin-bottom: 20px;
   }
 
-  /* App container styles */
   .app-container {
     display: flex;
     flex-wrap: wrap;
@@ -106,7 +101,6 @@
     overflow-x: hidden;
   }
 
-  /* App card styles */
   .app-card {
     background-color: #2c2c2c;
     padding: 20px;
@@ -114,7 +108,7 @@
     text-align: center;
     width: 200px;
     margin-bottom: 20px;
-    flex-shrink: 0; /* Prevent cards from shrinking on small screens */
+    flex-shrink: 0;
   }
 
   .app-card h3 {
@@ -123,38 +117,35 @@
 
   .app-card p {
     margin: 5px 0;
-    font-size: 16px; /* Increase font size */
-    color: #fff; /* Ensure text color is white */
+    font-size: 16px;
+    color: #fff;
   }
 
   .fame {
     font-weight: bold;
-    color: #FFD700; /* Gold color */
+    color: #FFD700;
   }
 
-  /* Top left corner text */
   .top-left {
     position: fixed;
     top: 10px;
     left: 10px;
-    font-size: 20px; /* Increase font size */
-    color: #FFD700; /* Yellow color */
+    font-size: 20px;
+    color: #FFD700;
     font-weight: bold;
-    z-index: 999; /* Ensure it's above other content */
+    z-index: 999;
   }
 
-  /* Bottom right corner balance */
   .bottom-right {
     position: fixed;
     bottom: 10px;
     right: 10px;
-    font-size: 16px; /* Increase font size */
+    font-size: 16px;
     font-weight: bold;
-    color: #FFD700; /* Yellow color */
-    z-index: 999; /* Ensure it's above other content */
+    color: #FFD700;
+    z-index: 999;
   }
 
-  /* Modal styles */
   .modal {
     display: none;
     position: fixed;
@@ -214,9 +205,9 @@
     position: fixed;
     top: 10px;
     right: 10px;
+    z-index: 999;
   }
 
-  /* Buy button */
   .buy-button {
     margin-top: 10px;
     padding: 10px 20px;
@@ -228,31 +219,75 @@
   }
 
   .buy-button.owned {
-    background-color: #f44336; /* Red color */
+    background-color: #f44336;
   }
 
-  /* Tiktok card */
   .app-card.tiktok {
     background-color: #2c2c2c;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
     width: 200px;
-    margin: auto; /* Center the card */
+    margin: auto;
   }
 
   .app-card.tiktok h3 {
     margin-top: 0;
-    color: #FFD700; /* Yellow color */
+    color: #FFD700;
   }
 
   .app-card.tiktok p {
     margin: 5px 0;
-    font-size: 16px; /* Increase font size */
-    color: #fff; /* Ensure text color is white */
+    font-size: 16px;
+    color: #fff;
   }
 
-  /* Ensure modal is scrollable */
+  .app-card.discord {
+    background-color: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 200px;
+    margin: auto;
+  }
+
+  .app-card.discord h3 {
+    margin-top: 0;
+    color: #FFD700;
+  }
+
+  .app-card.discord p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #fff;
+  }
+
+  .app-card.amazon {
+    background-color: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 200px;
+    margin: auto;
+  }
+
+  .app-card.amazon h3 {
+    margin-top: 0;
+    color: #FFD700;
+  }
+
+  .app-card.amazon p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #fff;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   @media screen and (max-width: 600px) {
     .modal-content {
       max-height: 80%;
@@ -282,7 +317,6 @@
     </div>
   </div>
 
-  <!-- Shop Modal -->
   <div id="shopModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeShopModal()">&times;</span>
@@ -294,116 +328,197 @@
         <p>Visits: 88M</p>
         <p>Likes: 45M</p>
         <p>Comments: 145M</p>
-        <button id="buyButton" class="buy-button" onclick="buyTiktok()">Buy for $22M</button>
+        <button id="buyButtonTiktok" class="buy-button" onclick="buyTiktok()">Buy for $22M</button>
+      </div>
+      <div class="app-card discord">
+        <h3>Discord</h3>
+        <p>Visits: 5B</p>
+        <p>Likes: 576M</p>
+        <p>Comments: 87M</p>
+        <button id="buyButtonDiscord" class="buy-button" onclick="buyDiscord()">Buy for $120M</button>
+      </div>
+      <div class="app-card amazon">
+        <h3>Amazon</h3>
+        <p>Visits: 22B</p>
+        <p>Likes: 45M</p>
+        <p>Comments: 68M</p>
+        <button id="buyButtonAmazon" class="buy-button" onclick="buyAmazon()">Buy for $987B</button>
       </div>
     </div>
   </div>
 
-  <!-- Shop Button -->
   <button class="shop-button" onclick="openShopModal()">🛒</button>
 
   <script>
-    let appCount = 0;
-    let visitInterval = 10000; // 10 seconds
-    let likeInterval = 15000; // 15 seconds
-    let commentInterval = 20000; // 20 seconds
-    let balance = 8000000000; // $8B initial balance
+    let balance = 8000000000;
     let tiktokOwned = false;
+    let discordOwned = false;
+    let amazonOwned = false;
 
     function createApp() {
-      const appName = document.getElementById('app-name').value;
-      if (appName) {
-        const appCard = document.createElement('div');
-        appCard.classList.add('app-card');
-        appCard.innerHTML = `
-          <h3>${appName}</h3>
-          <p>Visits: 0</p>
-          <p>Likes: 0</p>
-          <p>Comments: 0</p>
-        `;
-        document.getElementById('app-container').appendChild(appCard);
-        document.getElementById('app-name').value = '';
-
-        setInterval(() => updateVisits(appCard), visitInterval);
-        setInterval(() => updateLikes(appCard), likeInterval);
-        setInterval(() => updateComments(appCard), commentInterval);
-
-        appCount++;
-        if (appCount % 2 === 0) {
-          appCard.style.marginRight = '20px'; // Add margin between cards
-        }
+      const appNameInput = document.getElementById("app-name");
+      const appName = appNameInput.value.trim();
+      if (appName === "") {
+        alert("Please enter an app name.");
+        return;
       }
+
+      const appContainer = document.getElementById("app-container");
+
+      const existingAppCard = Array.from(appContainer.children).find(
+        (card) => card.querySelector("h3").textContent === appName
+      );
+      if (existingAppCard) {
+        alert("App with this name already exists.");
+        return;
+      }
+
+      const appCard = document.createElement("div");
+      appCard.classList.add("app-card");
+      appCard.innerHTML = `
+        <h3>${appName}</h3>
+        <p>Visits: 0</p>
+        <p>Likes: 0</p>
+        <p>Comments: 0</p>
+      `;
+
+      appContainer.appendChild(appCard);
+
+      appNameInput.value = "";
+
+      setInterval(() => updateVisits(appCard), visitInterval);
+      setInterval(() => updateLikes(appCard), likeInterval);
+      setInterval(() => updateComments(appCard), commentInterval);
     }
 
     function updateVisits(appCard) {
-      const visitsElement = appCard.querySelector('p:nth-of-type(1)');
-      let visits = parseInt(visitsElement.textContent.split(': ')[1]);
+      const visitsElement = appCard.querySelector("p:nth-of-type(1)");
+      let visits = parseInt(visitsElement.textContent.split(": ")[1]);
       visits++;
       visitsElement.textContent = `Visits: ${visits}`;
 
       if (visits >= 12) {
-        document.querySelector('.top-left').textContent = 'Known';
-        visitInterval = 5000; // 5 seconds
-        likeInterval = 7500; // 7.5 seconds
+        document.querySelector(".top-left").textContent = "Famous";
+        visitInterval = 5000;
+        likeInterval = 7500;
       }
 
       if (visits >= 20) {
-        document.querySelector('.top-left').textContent = 'Known well';
-        visitInterval = 2500; // 2.5 seconds
-        likeInterval = 5000; // 5 seconds
+        document.querySelector(".top-left").textContent = "Famous";
+        visitInterval = 2500;
+        likeInterval = 5000;
       }
     }
 
     function updateLikes(appCard) {
-      const likesElement = appCard.querySelector('p:nth-of-type(2)');
-      let likes = parseInt(likesElement.textContent.split(': ')[1]);
+      const likesElement = appCard.querySelector("p:nth-of-type(2)");
+      let likes = parseInt(likesElement.textContent.split(": ")[1]);
       likes++;
       likesElement.textContent = `Likes: ${likes}`;
     }
 
     function updateComments(appCard) {
-      const commentsElement = appCard.querySelector('p:nth-of-type(3)');
-      let comments = parseInt(commentsElement.textContent.split(': ')[1]);
+      const commentsElement = appCard.querySelector("p:nth-of-type(3)");
+      let comments = parseInt(commentsElement.textContent.split(": ")[1]);
       comments++;
       commentsElement.textContent = `Comments: ${comments}`;
     }
 
     function openShopModal() {
-      document.getElementById('shopModal').style.display = 'block';
+      document.getElementById("shopModal").style.display = "block";
     }
 
     function closeShopModal() {
-      document.getElementById('shopModal').style.display = 'none';
+      document.getElementById("shopModal").style.display = "none";
     }
 
     function buyTiktok() {
-      const tiktokPrice = 22000000; // $22M
+      const tiktokPrice = 22000000;
       if (balance >= tiktokPrice && !tiktokOwned) {
         balance -= tiktokPrice;
-        document.getElementById('balance').textContent = formatBalance(balance);
-        document.querySelector('.bottom-right').textContent = `Balance: ${formatBalance(balance)}`;
+        document.getElementById("balance").textContent = formatBalance(balance);
 
-        const tiktokCard = document.createElement('div');
-        tiktokCard.classList.add('app-card', 'tiktok');
+        const tiktokCard = document.createElement("div");
+        tiktokCard.classList.add("app-card", "tiktok");
         tiktokCard.innerHTML = `
           <h3>Tiktok</h3>
           <p>Visits: 88M</p>
           <p>Likes: 45M</p>
           <p>Comments: 145M</p>
         `;
-        document.getElementById('app-container').appendChild(tiktokCard);
 
-        // Update button to Owned
-        const buyButton = document.getElementById('buyButton');
-        buyButton.textContent = 'Purchased';
-        buyButton.classList.add('owned');
+        document.getElementById("app-container").appendChild(tiktokCard);
 
-        tiktokOwned = true; // Mark Tiktok as owned
+        const buyButton = document.getElementById("buyButtonTiktok");
+        buyButton.textContent = "Purchased";
+        buyButton.classList.add("owned");
+
+        tiktokOwned = true;
         closeShopModal();
       } else if (tiktokOwned) {
-        alert('You already own Tiktok!');
+        alert("You already own Tiktok!");
       } else {
-        alert('Insufficient balance to buy Tiktok!');
+        alert("Insufficient balance to buy Tiktok!");
+      }
+    }
+
+    function buyDiscord() {
+      const discordPrice = 120000000;
+      if (balance >= discordPrice && !discordOwned) {
+        balance -= discordPrice;
+        document.getElementById("balance").textContent = formatBalance(balance);
+
+        const discordCard = document.createElement("div");
+        discordCard.classList.add("app-card", "discord");
+        discordCard.innerHTML = `
+          <h3>Discord</h3>
+          <p>Visits: 5B</p>
+          <p>Likes: 576M</p>
+          <p>Comments: 87M</p>
+        `;
+
+        document.getElementById("app-container").appendChild(discordCard);
+
+        const buyButton = document.getElementById("buyButtonDiscord");
+        buyButton.textContent = "Purchased";
+        buyButton.classList.add("owned");
+
+        discordOwned = true;
+        closeShopModal();
+      } else if (discordOwned) {
+        alert("You already own Discord!");
+      } else {
+        alert("Insufficient balance to buy Discord!");
+      }
+    }
+
+    function buyAmazon() {
+      const amazonPrice = 987000000000;
+      if (balance >= amazonPrice && !amazonOwned) {
+        balance -= amazonPrice;
+        document.getElementById("balance").textContent = formatBalance(balance);
+
+        const amazonCard = document.createElement("div");
+        amazonCard.classList.add("app-card", "amazon");
+        amazonCard.innerHTML = `
+          <h3>Amazon</h3>
+          <p>Visits: 22B</p>
+          <p>Likes: 45M</p>
+          <p>Comments: 68M</p>
+        `;
+
+        document.getElementById("app-container").appendChild(amazonCard);
+
+        const buyButton = document.getElementById("buyButtonAmazon");
+        buyButton.textContent = "Purchased";
+        buyButton.classList.add("owned");
+
+        amazonOwned = true;
+        closeShopModal();
+      } else if (amazonOwned) {
+        alert("You already own Amazon!");
+      } else {
+        alert("Insufficient balance to buy Amazon!");
       }
     }
 
