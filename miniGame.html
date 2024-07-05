@@ -54,8 +54,8 @@
             font-size: 14px; /* Decrease font size */
             padding: 10px 15px; /* Adjust padding */
             border-radius: 3px; /* Adjust border radius */
-            background-color: #FFD700; /* Gold color */
-            color: #000;
+            background-color: #1c1c1c; /* Same color as background */
+            color: #fff;
             cursor: pointer;
             position: absolute;
             top: 10px;
@@ -191,7 +191,7 @@
         <button onclick="createApp()">Create App</button>
         <button class="update-button" onclick="showUpdatePopup()">Update</button>
         <div id="app-container" class="app-container"></div>
-        <button class="vip-button" onclick="showPopup()">VIP Access</button>
+        <button class="vip-button" onclick="showPopup()">Admin Access</button>
     </div>
 
     <div class="popup" id="vip-popup">
@@ -296,11 +296,11 @@
 
             // Check if visits meet status thresholds
             if (visits >= visitLimitFamous) {
-                updateAppStatus(visits, appCard, 'Famous');
+                updateAppStatus(appCard, 'Famous');
             } else if (visits >= visitLimitKnownWell && !appCard.classList.contains('famous')) {
-                updateAppStatus(visits, appCard, 'Known Well');
+                updateAppStatus(appCard, 'Known Well');
             } else if (visits < visitLimitKnownWell && !appCard.classList.contains('famous')) {
-                updateAppStatus(visits, appCard, 'Known');
+                updateAppStatus(appCard, 'Known');
             }
         }
 
@@ -318,9 +318,17 @@
             commentsElement.textContent = `Comments: ${comments}`;
         }
 
-        function updateAppStatus(value, appCard, status) {
+        function updateAppStatus(appCard, status) {
+            // Remove any existing status classes
+            appCard.classList.remove('known', 'known-well', 'famous');
+            
+            // Add the new status class
             appCard.classList.add(status.toLowerCase()); // Add class based on status
-            document.querySelector('.top-left').textContent = status; // Update status text
+
+            // Update status text
+            if (status === 'Famous') {
+                document.querySelector('.top-left').textContent = status; // Update status text
+            }
         }
 
         function showPopup() {
@@ -370,3 +378,10 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
