@@ -227,6 +227,8 @@
         let balance = 0;
         let currentSellingAppId = null;
 
+        document.addEventListener("DOMContentLoaded", loadAppData);
+
         function createApp() {
             const appName = document.getElementById('app-name').value;
             const appColor = document.getElementById('app-color').value;
@@ -250,6 +252,7 @@
                 document.getElementById('app-name').value = '';
 
                 startIntervals(appCard);
+                saveAppData();
             }
         }
 
@@ -291,6 +294,7 @@
             } else if (visits < visitLimitKnownWell && !appCard.classList.contains('famous')) {
                 updateAppStatus(appCard, 'Known');
             }
+            saveAppData();
         }
 
         function updateLikes(appCard) {
@@ -298,6 +302,7 @@
             let likes = parseInt(likesElement.textContent.split(': ')[1]);
             likes++;
             likesElement.textContent = `Likes: ${likes}`;
+            saveAppData();
         }
 
         function updateComments(appCard) {
@@ -305,6 +310,7 @@
             let comments = parseInt(commentsElement.textContent.split(': ')[1]);
             comments++;
             commentsElement.textContent = `Comments: ${comments}`;
+            saveAppData();
         }
 
         function updateAppStatus(appCard, status) {
@@ -314,6 +320,7 @@
             if (status === 'Famous') {
                 document.querySelector('.top-left').textContent = status;
             }
+            saveAppData();
         }
 
         function showPopup() {
@@ -349,6 +356,7 @@
             stopIntervals(appCard);
             appCard.remove();
             hideSellPopup();
+            saveAppData();
         }
 
         function checkPassword() {
@@ -359,15 +367,55 @@
                 alert('Incorrect Password');
             }
         }
+
+        function saveAppData() {
+            const appData = [];
+            const appCards = document.querySelectorAll('.app-card');
+
+            appCards.forEach(appCard => {
+                const appName = appCard.querySelector('h3').textContent;
+                const visits = parseInt(appCard.querySelector('p:nth-of-type(1)').textContent.split(': ')[1]);
+                const likes = parseInt(appCard.querySelector('p:nth-of-type(2)').textContent.split(': ')[1]);
+                const comments = parseInt(appCard.querySelector('p:nth-of-type(3)').textContent.split(': ')[1]);
+                const color = appCard.style.backgroundColor;
+                const status = appCard.classList.contains('famous') ? 'famous' :
+                               appCard.classList.contains('known-well') ? 'known-well' : 'known';
+
+                appData.push({ appName, visits, likes, comments, color, status });
+            });
+
+            localStorage.setItem('appData', JSON.stringify(appData));
+            localStorage.setItem('balance', balance);
+        }
+
+        function loadAppData() {
+            const savedAppData = JSON.parse(localStorage.getItem('appData'));
+            balance = parseInt(localStorage.getItem('balance')) || 0;
+            document.querySelector('.bottom-right').textContent = `Balance: £${balance}`;
+
+            if (savedAppData) {
+                savedAppData.forEach(data => {
+                    const appCard = document.createElement('div');
+                    appCard.classList.add('app-card', data.status);
+                    appCard.style.backgroundColor = data.color;
+
+                    appCard.innerHTML = `
+                        <h3>${data.appName}</h3>
+                        <p>Visits: ${data.visits}</p>
+                        <p>Likes: ${data.likes}</p>
+                        <p>Comments: ${data.comments}</p>
+                        <button class="sell-button" onclick="showSellPopup('${appCount}')">Sell</button>
+                    `;
+
+                    appCard.id = `app-${appCount}`;
+                    appCount++;
+
+                    document.getElementById('app-container').appendChild(appCard);
+
+                    startIntervals(appCard);
+                });
+            }
+        }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
