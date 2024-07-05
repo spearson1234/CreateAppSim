@@ -19,11 +19,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Align items to the top */
+            justify-content: flex-start;
             height: 100vh;
-            position: relative; /* Ensure relative positioning for absolute positioning inside */
-            padding-top: 50px; /* Increase top padding */
-            padding-bottom: 20px; /* Add bottom padding */
+            position: relative;
+            padding-top: 50px;
+            padding-bottom: 20px;
         }
 
         /* Input and button styles */
@@ -51,23 +51,23 @@
 
         /* VIP button styles */
         .vip-button {
-            font-size: 14px; /* Decrease font size */
-            padding: 10px 15px; /* Adjust padding */
-            border-radius: 3px; /* Adjust border radius */
-            background-color: #1c1c1c; /* Same color as background */
+            font-size: 14px;
+            padding: 10px 15px;
+            border-radius: 3px;
+            background-color: #1c1c1c;
             color: #fff;
             cursor: pointer;
             position: absolute;
             top: 10px;
             right: 10px;
-            z-index: 1; /* Ensure it's above other elements */
+            z-index: 1;
         }
 
         /* Update button styles */
         .update-button {
             font-size: 16px;
             padding: 10px 20px;
-            border: 2px solid #4CAF50; /* Green border */
+            border: 2px solid #4CAF50;
             border-radius: 5px;
             background-color: transparent;
             color: #4CAF50;
@@ -86,7 +86,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 999; /* Ensure popup is on top of other content */
+            z-index: 999;
         }
 
         .popup h3 {
@@ -113,7 +113,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
-            margin-top: 20px; /* Add margin to separate apps from input */
+            margin-top: 20px;
         }
 
         /* App card styles */
@@ -123,9 +123,9 @@
             border-radius: 10px;
             text-align: center;
             width: 200px;
-            border: 4px solid #fff; /* Thicker outline for app card */
-            cursor: default; /* Disable pointer events */
-            position: relative; /* Positioning for app card */
+            border: 4px solid #fff;
+            cursor: default;
+            position: relative;
         }
 
         .app-card h3 {
@@ -134,13 +134,13 @@
 
         .app-card p {
             margin: 5px 0;
-            font-size: 16px; /* Increase font size */
+            font-size: 16px;
         }
 
         .sell-button {
             font-size: 14px;
             padding: 5px 10px;
-            background-color: #FF6347; /* Red button */
+            background-color: #FF6347;
             color: #fff;
             border: none;
             border-radius: 3px;
@@ -148,21 +148,21 @@
         }
 
         .sell-button:hover {
-            background-color: #FF473E; /* Darker red on hover */
+            background-color: #FF473E;
         }
 
         .famous {
             font-weight: bold;
-            color: #FFD700; /* Gold color */
-            border: 8px solid #FFD700; /* Yellow outline for famous apps */
+            color: #FFD700;
+            border: 8px solid #FFD700;
         }
 
         .known-well {
-            border: 4px solid #FFD700; /* Yellow outline for known well apps */
+            border: 4px solid #FFD700;
         }
 
         .known {
-            border: 4px solid #fff; /* White outline for known apps */
+            border: 4px solid #fff;
         }
 
         /* Top left corner text */
@@ -170,7 +170,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            font-size: 20px; /* Increase font size */
+            font-size: 20px;
         }
 
         /* Bottom right corner balance */
@@ -178,7 +178,7 @@
             position: absolute;
             bottom: 10px;
             right: 10px;
-            font-size: 16px; /* Increase font size */
+            font-size: 16px;
         }
     </style>
 </head>
@@ -187,7 +187,7 @@
     <div class="bottom-right">Balance: £0</div>
     <div class="container">
         <input type="text" id="app-name" placeholder="Enter app name">
-        <input type="color" id="app-color" value="#2c2c2c"> <!-- Color picker for app background -->
+        <input type="color" id="app-color" value="#2c2c2c">
         <button onclick="createApp()">Create App</button>
         <button class="update-button" onclick="showUpdatePopup()">Update</button>
         <div id="app-container" class="app-container"></div>
@@ -206,7 +206,7 @@
         <h3>Updates</h3>
         <p>.Custom Color Cards</p>
         <p>.Update Info</p>
-        <p>.Bugs Fixed</p> <!-- Added new update info -->
+        <p>.Bugs Fixed</p>
     </div>
 
     <div class="popup" id="sell-popup">
@@ -219,65 +219,55 @@
 
     <script>
         let appCount = 0;
-        let visitLimitKnownWell = 30; // Visit limit for Known Well status
-        let visitLimitFamous = 100; // Visit limit for Famous status
-        let visitInterval = 1000; // 1 second for visits
-        let likeInterval = 2000; // 2 seconds for likes
-        let commentInterval = 3000; // 3 seconds for comments
+        let visitLimitKnownWell = 30;
+        let visitLimitFamous = 100;
+        let visitInterval = 1000;
+        let likeInterval = 2000;
+        let commentInterval = 3000;
         let balance = 0;
-        let paymentInterval;
+        let currentSellingAppId = null;
 
         function createApp() {
             const appName = document.getElementById('app-name').value;
-            const appColor = document.getElementById('app-color').value; // Get selected color
+            const appColor = document.getElementById('app-color').value;
             if (appName.trim() !== '') {
                 const appCard = document.createElement('div');
                 appCard.classList.add('app-card');
-                appCard.style.backgroundColor = appColor; // Set background color
+                appCard.style.backgroundColor = appColor;
 
                 appCard.innerHTML = `
                     <h3>${appName}</h3>
                     <p>Visits: 0</p>
                     <p>Likes: 0</p>
                     <p>Comments: 0</p>
-                    <button class="sell-button" onclick="showSellPopup('${appName}')">Sell</button>
+                    <button class="sell-button" onclick="showSellPopup('${appCount}')">Sell</button>
                 `;
 
-                // Assign unique id to each app card
-                const appId = `app-${appCount}`;
-                appCard.id = appId;
-
-                // Increment app count
+                appCard.id = `app-${appCount}`;
                 appCount++;
 
-                // Append app card to container
                 document.getElementById('app-container').appendChild(appCard);
                 document.getElementById('app-name').value = '';
 
-                // Start intervals for visits, likes, and comments
                 startIntervals(appCard);
             }
         }
 
         function startIntervals(appCard) {
-            // Start intervals for visits, likes, and comments
             const visitIntervalId = setInterval(() => updateVisits(appCard), visitInterval);
             const likeIntervalId = setInterval(() => updateLikes(appCard), likeInterval);
             const commentIntervalId = setInterval(() => updateComments(appCard), commentInterval);
 
-            // Store interval IDs for later reference
             appCard.dataset.visitIntervalId = visitIntervalId;
             appCard.dataset.likeIntervalId = likeIntervalId;
             appCard.dataset.commentIntervalId = commentIntervalId;
         }
 
         function stopIntervals(appCard) {
-            // Clear intervals based on stored IDs
             clearInterval(parseInt(appCard.dataset.visitIntervalId));
             clearInterval(parseInt(appCard.dataset.likeIntervalId));
             clearInterval(parseInt(appCard.dataset.commentIntervalId));
 
-            // Remove stored IDs
             delete appCard.dataset.visitIntervalId;
             delete appCard.dataset.likeIntervalId;
             delete appCard.dataset.commentIntervalId;
@@ -289,13 +279,11 @@
             visits++;
             visitsElement.textContent = `Visits: ${visits}`;
 
-            // Update balance every 10 visits
             if (visits % 10 === 0) {
-                balance += 10; // Increment balance by £10
+                balance += 10;
                 document.querySelector('.bottom-right').textContent = `Balance: £${balance}`;
             }
 
-            // Check if visits meet status thresholds
             if (visits >= visitLimitFamous) {
                 updateAppStatus(appCard, 'Famous');
             } else if (visits >= visitLimitKnownWell && !appCard.classList.contains('famous')) {
@@ -320,15 +308,11 @@
         }
 
         function updateAppStatus(appCard, status) {
-            // Remove any existing status classes
             appCard.classList.remove('known', 'known-well', 'famous');
-            
-            // Add the new status class
-            appCard.classList.add(status.toLowerCase()); // Add class based on status
+            appCard.classList.add(status.toLowerCase());
 
-            // Update status text
             if (status === 'Famous') {
-                document.querySelector('.top-left').textContent = status; // Update status text
+                document.querySelector('.top-left').textContent = status;
             }
         }
 
@@ -348,10 +332,11 @@
             document.getElementById('update-popup').style.display = 'none';
         }
 
-        function showSellPopup(appName) {
+        function showSellPopup(appId) {
+            currentSellingAppId = appId;
+            const appName = document.getElementById(`app-${appId}`).querySelector('h3').textContent;
             const sellMessage = document.getElementById('sell-message');
             sellMessage.textContent = `Are you sure you want to sell ${appName}?`;
-
             document.getElementById('sell-popup').style.display = 'block';
         }
 
@@ -360,18 +345,16 @@
         }
 
         function confirmSell() {
-            const appCard = document.getElementById(`app-${appCount - 1}`);
-            stopIntervals(appCard); // Stop intervals for the sold app
-            appCard.remove(); // Remove app card from DOM
-            balance = 0; // Reset balance to 0
-            document.querySelector('.bottom-right').textContent = `Balance: £${balance}`; // Update balance display
-            hideSellPopup(); // Hide sell popup after confirmation
+            const appCard = document.getElementById(`app-${currentSellingAppId}`);
+            stopIntervals(appCard);
+            appCard.remove();
+            hideSellPopup();
         }
 
         function checkPassword() {
             const password = document.getElementById('admin-password').value;
             if (password === 'Admin123') {
-                window.location.href = 'AdminAccess.Html'; // Redirect to the admin page
+                window.location.href = 'AdminAccess.Html';
             } else {
                 alert('Incorrect Password');
             }
@@ -379,3 +362,12 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
