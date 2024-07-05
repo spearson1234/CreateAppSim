@@ -19,12 +19,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* Align items to the top */
             height: 100vh;
+            position: relative; /* Ensure relative positioning for absolute positioning inside */
+            padding-top: 50px; /* Increase top padding */
+            padding-bottom: 20px; /* Add bottom padding */
         }
 
         /* Input and button styles */
-        input[type="text"], input[type="password"] {
+        input[type="text"], input[type="password"], input[type="color"] {
             font-size: 16px;
             padding: 10px;
             border: none;
@@ -48,23 +51,28 @@
 
         /* VIP button styles */
         .vip-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 18px;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
+            font-size: 14px; /* Decrease font size */
+            padding: 10px 15px; /* Adjust padding */
+            border-radius: 3px; /* Adjust border radius */
             background-color: #FFD700; /* Gold color */
             color: #000;
             cursor: pointer;
-            animation: pulse 2s infinite;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1; /* Ensure it's above other elements */
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        /* Update button styles */
+        .update-button {
+            font-size: 16px;
+            padding: 10px 20px;
+            border: 2px solid #4CAF50; /* Green border */
+            border-radius: 5px;
+            background-color: transparent;
+            color: #4CAF50;
+            cursor: pointer;
+            margin-bottom: 20px;
         }
 
         /* Popup styles */
@@ -78,14 +86,25 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 999; /* Ensure popup is on top of other content */
         }
 
-        .popup input {
+        .popup h3 {
+            margin-top: 0;
             margin-bottom: 10px;
         }
 
-        .popup button {
-            background-color: #4CAF50;
+        .popup p {
+            margin: 5px 0;
+        }
+
+        .exit-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 20px;
         }
 
         /* App container styles */
@@ -94,6 +113,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
+            margin-top: 20px; /* Add margin to separate apps from input */
         }
 
         /* App card styles */
@@ -103,7 +123,9 @@
             border-radius: 10px;
             text-align: center;
             width: 200px;
-            border: 2px solid #fff; /* Outline for app card */
+            border: 4px solid #fff; /* Thicker outline for app card */
+            cursor: default; /* Disable pointer events */
+            position: relative; /* Positioning for app card */
         }
 
         .app-card h3 {
@@ -115,9 +137,32 @@
             font-size: 16px; /* Increase font size */
         }
 
-        .fame {
+        .sell-button {
+            font-size: 14px;
+            padding: 5px 10px;
+            background-color: #FF6347; /* Red button */
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .sell-button:hover {
+            background-color: #FF473E; /* Darker red on hover */
+        }
+
+        .famous {
             font-weight: bold;
             color: #FFD700; /* Gold color */
+            border: 8px solid #FFD700; /* Yellow outline for famous apps */
+        }
+
+        .known-well {
+            border: 4px solid #FFD700; /* Yellow outline for known well apps */
+        }
+
+        .known {
+            border: 4px solid #fff; /* White outline for known apps */
         }
 
         /* Top left corner text */
@@ -139,70 +184,123 @@
 </head>
 <body>
     <div class="top-left">Nobody</div>
-    <div class="bottom-right">Balance: $0</div>
+    <div class="bottom-right">Balance: £0</div>
     <div class="container">
         <input type="text" id="app-name" placeholder="Enter app name">
+        <input type="color" id="app-color" value="#2c2c2c"> <!-- Color picker for app background -->
         <button onclick="createApp()">Create App</button>
+        <button class="update-button" onclick="showUpdatePopup()">Update</button>
         <div id="app-container" class="app-container"></div>
         <button class="vip-button" onclick="showPopup()">VIP Access</button>
     </div>
 
     <div class="popup" id="vip-popup">
+        <span class="exit-button" onclick="hidePopup()">×</span>
         <h3>Please Enter The Administrator Password</h3>
         <input type="password" id="admin-password" placeholder="Password">
         <button onclick="checkPassword()">Submit</button>
     </div>
 
+    <div class="popup" id="update-popup">
+        <span class="exit-button" onclick="hideUpdatePopup()">×</span>
+        <h3>Updates</h3>
+        <p>.Custom Color Cards</p>
+        <p>.Update Info</p>
+    </div>
+
+    <div class="popup" id="sell-popup">
+        <span class="exit-button" onclick="hideSellPopup()">×</span>
+        <h3>Sell App Confirmation</h3>
+        <p id="sell-message"></p>
+        <button onclick="confirmSell()">Yes</button>
+        <button onclick="hideSellPopup()">No</button>
+    </div>
+
     <script>
         let appCount = 0;
-        let visitLimit = 20;
-        let visitInterval = 10000; // 10 seconds
-        let likeInterval = 15000; // 15 seconds
-        let commentInterval = 20000; // 20 seconds
+        let visitLimitKnownWell = 30; // Visit limit for Known Well status
+        let visitLimitFamous = 100; // Visit limit for Famous status
+        let visitInterval = 1000; // 1 second for visits
+        let likeInterval = 2000; // 2 seconds for likes
+        let commentInterval = 3000; // 3 seconds for comments
         let balance = 0;
+        let paymentInterval;
 
         function createApp() {
             const appName = document.getElementById('app-name').value;
+            const appColor = document.getElementById('app-color').value; // Get selected color
             if (appName.trim() !== '') {
                 const appCard = document.createElement('div');
                 appCard.classList.add('app-card');
+                appCard.style.backgroundColor = appColor; // Set background color
+
                 appCard.innerHTML = `
                     <h3>${appName}</h3>
                     <p>Visits: 0</p>
                     <p>Likes: 0</p>
                     <p>Comments: 0</p>
+                    <button class="sell-button" onclick="showSellPopup('${appName}')">Sell</button>
                 `;
+
+                // Assign unique id to each app card
+                const appId = `app-${appCount}`;
+                appCard.id = appId;
+
+                // Increment app count
+                appCount++;
+
+                // Append app card to container
                 document.getElementById('app-container').appendChild(appCard);
                 document.getElementById('app-name').value = '';
 
-                setInterval(() => updateVisits(appCard), visitInterval);
-                setInterval(() => updateLikes(appCard), likeInterval);
-                setInterval(() => updateComments(appCard), commentInterval);
+                // Start intervals for visits, likes, and comments
+                startIntervals(appCard);
             }
         }
 
+        function startIntervals(appCard) {
+            // Start intervals for visits, likes, and comments
+            const visitIntervalId = setInterval(() => updateVisits(appCard), visitInterval);
+            const likeIntervalId = setInterval(() => updateLikes(appCard), likeInterval);
+            const commentIntervalId = setInterval(() => updateComments(appCard), commentInterval);
+
+            // Store interval IDs for later reference
+            appCard.dataset.visitIntervalId = visitIntervalId;
+            appCard.dataset.likeIntervalId = likeIntervalId;
+            appCard.dataset.commentIntervalId = commentIntervalId;
+        }
+
+        function stopIntervals(appCard) {
+            // Clear intervals based on stored IDs
+            clearInterval(parseInt(appCard.dataset.visitIntervalId));
+            clearInterval(parseInt(appCard.dataset.likeIntervalId));
+            clearInterval(parseInt(appCard.dataset.commentIntervalId));
+
+            // Remove stored IDs
+            delete appCard.dataset.visitIntervalId;
+            delete appCard.dataset.likeIntervalId;
+            delete appCard.dataset.commentIntervalId;
+        }
+
         function updateVisits(appCard) {
-            const visitsElement = appCard.querySelector('p:first-of-type');
+            const visitsElement = appCard.querySelector('p:nth-of-type(1)');
             let visits = parseInt(visitsElement.textContent.split(': ')[1]);
             visits++;
             visitsElement.textContent = `Visits: ${visits}`;
 
-            if (visits >= 12) {
-                document.querySelector('.top-left').textContent = 'Known';
-                visitInterval = 5000; // 5 seconds
-                likeInterval = 7500; // 7.5 seconds
+            // Update balance every 10 visits
+            if (visits % 10 === 0) {
+                balance += 10; // Increment balance by £10
+                document.querySelector('.bottom-right').textContent = `Balance: £${balance}`;
             }
 
-            if (visits >= 20) {
-                document.querySelector('.top-left').textContent = 'Known well';
-                visitInterval = 2500; // 2.5 seconds
-                likeInterval = 5000; // 5 seconds
-            }
-
-            if (visits >= visitLimit) {
-                appCard.classList.add('fame');
-                balance += 10; // Increase balance by $10 for every 20 visits
-                document.querySelector('.bottom-right').textContent = `Balance: $${balance}`;
+            // Check if visits meet status thresholds
+            if (visits >= visitLimitFamous) {
+                updateAppStatus(visits, appCard, 'Famous');
+            } else if (visits >= visitLimitKnownWell && !appCard.classList.contains('famous')) {
+                updateAppStatus(visits, appCard, 'Known Well');
+            } else if (visits < visitLimitKnownWell && !appCard.classList.contains('famous')) {
+                updateAppStatus(visits, appCard, 'Known');
             }
         }
 
@@ -211,12 +309,6 @@
             let likes = parseInt(likesElement.textContent.split(': ')[1]);
             likes++;
             likesElement.textContent = `Likes: ${likes}`;
-
-            if (likes >= visitLimit) {
-                appCard.classList.add('fame');
-                balance += 5; // Increase balance by $5 for every 20 likes
-                document.querySelector('.bottom-right').textContent = `Balance: $${balance}`;
-            }
         }
 
         function updateComments(appCard) {
@@ -224,16 +316,47 @@
             let comments = parseInt(commentsElement.textContent.split(': ')[1]);
             comments++;
             commentsElement.textContent = `Comments: ${comments}`;
+        }
 
-            if (comments >= visitLimit) {
-                appCard.classList.add('fame');
-                balance += 3; // Increase balance by $3 for every 20 comments
-                document.querySelector('.bottom-right').textContent = `Balance: $${balance}`;
-            }
+        function updateAppStatus(value, appCard, status) {
+            appCard.classList.add(status.toLowerCase()); // Add class based on status
+            document.querySelector('.top-left').textContent = status; // Update status text
         }
 
         function showPopup() {
             document.getElementById('vip-popup').style.display = 'block';
+        }
+
+        function hidePopup() {
+            document.getElementById('vip-popup').style.display = 'none';
+        }
+
+        function showUpdatePopup() {
+            document.getElementById('update-popup').style.display = 'block';
+        }
+
+        function hideUpdatePopup() {
+            document.getElementById('update-popup').style.display = 'none';
+        }
+
+        function showSellPopup(appName) {
+            const sellMessage = document.getElementById('sell-message');
+            sellMessage.textContent = `Are you sure you want to sell ${appName}?`;
+
+            document.getElementById('sell-popup').style.display = 'block';
+        }
+
+        function hideSellPopup() {
+            document.getElementById('sell-popup').style.display = 'none';
+        }
+
+        function confirmSell() {
+            const appCard = document.getElementById(`app-${appCount - 1}`);
+            stopIntervals(appCard); // Stop intervals for the sold app
+            appCard.remove(); // Remove app card from DOM
+            balance = 0; // Reset balance to 0
+            document.querySelector('.bottom-right').textContent = `Balance: £${balance}`; // Update balance display
+            hideSellPopup(); // Hide sell popup after confirmation
         }
 
         function checkPassword() {
