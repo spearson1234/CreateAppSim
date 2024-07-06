@@ -7,11 +7,61 @@
     <style>
         /* Body styles */
         body {
-            background-color: #1c1c1c;
+            background-color: #1e1e1e;
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+        }
+
+        /* Background animation styles */
+        .background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .circle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            animation: circleAnimation 10s linear infinite;
+            mix-blend-mode: overlay;
+        }
+
+        .circle:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-duration: 8s;
+        }
+
+        .circle:nth-child(2) {
+            top: 50%;
+            left: 70%;
+            animation-duration: 10s;
+        }
+
+        .circle:nth-child(3) {
+            top: 80%;
+            left: 30%;
+            animation-duration: 12s;
+        }
+
+        @keyframes circleAnimation {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
         }
 
         /* Container styles */
@@ -27,7 +77,7 @@
         }
 
         /* Input and button styles */
-        input[type="text"], input[type="password"], input[type="color"] {
+        input[type="text"], input[type="color"] {
             font-size: 16px;
             padding: 10px;
             border: none;
@@ -47,20 +97,6 @@
             color: #fff;
             cursor: pointer;
             margin-bottom: 20px;
-        }
-
-        /* VIP button styles */
-        .vip-button {
-            font-size: 14px;
-            padding: 10px 15px;
-            border-radius: 3px;
-            background-color: #1c1c1c;
-            color: #fff;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1;
         }
 
         /* Update button styles */
@@ -183,6 +219,12 @@
     </style>
 </head>
 <body>
+    <div class="background">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+
     <div class="top-left">Nobody</div>
     <div class="bottom-right">Balance: £0</div>
     <div class="container">
@@ -191,14 +233,6 @@
         <button onclick="createApp()">Create App</button>
         <button class="update-button" onclick="showUpdatePopup()">Update</button>
         <div id="app-container" class="app-container"></div>
-        <button class="vip-button" onclick="showPopup()">Admin Access</button>
-    </div>
-
-    <div class="popup" id="vip-popup">
-        <span class="exit-button" onclick="hidePopup()">×</span>
-        <h3>Please Enter The Administrator Password</h3>
-        <input type="password" id="admin-password" placeholder="Password">
-        <button onclick="checkPassword()">Submit</button>
     </div>
 
     <div class="popup" id="update-popup">
@@ -208,7 +242,7 @@
         <p>.Update Info</p>
         <p>.Bugs Fixed</p>
         <p>.Automatic Save</p>
-     <p>.Animated BackGround</p>
+        <p>.Animated Background</p>
     </div>
 
     <div class="popup" id="sell-popup">
@@ -221,11 +255,11 @@
 
     <script>
         let appCount = 0;
-        let visitLimitKnownWell = 30;
-        let visitLimitFamous = 100;
-        let visitInterval = 1000;
-        let likeInterval = 2000;
-        let commentInterval = 3000;
+        const visitLimitKnownWell = 30;
+        const visitLimitFamous = 100;
+        const visitInterval = 1000;
+        const likeInterval = 2000;
+        const commentInterval = 3000;
         let balance = 0;
         let currentSellingAppId = null;
 
@@ -272,65 +306,42 @@
             clearInterval(parseInt(appCard.dataset.visitIntervalId));
             clearInterval(parseInt(appCard.dataset.likeIntervalId));
             clearInterval(parseInt(appCard.dataset.commentIntervalId));
-
-            delete appCard.dataset.visitIntervalId;
-            delete appCard.dataset.likeIntervalId;
-            delete appCard.dataset.commentIntervalId;
         }
 
         function updateVisits(appCard) {
-            const visitsElement = appCard.querySelector('p:nth-of-type(1)');
-            let visits = parseInt(visitsElement.textContent.split(': ')[1]);
-            visits++;
-            visitsElement.textContent = `Visits: ${visits}`;
+            const visitsP = appCard.querySelector('p:nth-of-type(1)');
+            let visits = parseInt(visitsP.innerText.split(': ')[1]) + 1;
+            visitsP.innerText = `Visits: ${visits}`;
 
             if (visits % 10 === 0) {
                 balance += 10;
-                document.querySelector('.bottom-right').textContent = `Balance: £${balance}`;
+                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
             }
 
             if (visits >= visitLimitFamous) {
-                updateAppStatus(appCard, 'Famous');
-            } else if (visits >= visitLimitKnownWell && !appCard.classList.contains('famous')) {
-                updateAppStatus(appCard, 'Known Well');
-            } else if (visits < visitLimitKnownWell && !appCard.classList.contains('famous')) {
-                updateAppStatus(appCard, 'Known');
+                document.querySelector('.top-left').innerText = "Famous";
+                appCard.classList.add('famous');
+            } else if (visits >= visitLimitKnownWell) {
+                appCard.classList.add('known-well');
+            } else {
+                appCard.classList.add('known');
             }
+
             saveAppData();
         }
 
         function updateLikes(appCard) {
-            const likesElement = appCard.querySelector('p:nth-of-type(2)');
-            let likes = parseInt(likesElement.textContent.split(': ')[1]);
-            likes++;
-            likesElement.textContent = `Likes: ${likes}`;
+            const likesP = appCard.querySelector('p:nth-of-type(2)');
+            const likes = parseInt(likesP.innerText.split(': ')[1]) + 1;
+            likesP.innerText = `Likes: ${likes}`;
             saveAppData();
         }
 
         function updateComments(appCard) {
-            const commentsElement = appCard.querySelector('p:nth-of-type(3)');
-            let comments = parseInt(commentsElement.textContent.split(': ')[1]);
-            comments++;
-            commentsElement.textContent = `Comments: ${comments}`;
+            const commentsP = appCard.querySelector('p:nth-of-type(3)');
+            const comments = parseInt(commentsP.innerText.split(': ')[1]) + 1;
+            commentsP.innerText = `Comments: ${comments}`;
             saveAppData();
-        }
-
-        function updateAppStatus(appCard, status) {
-            appCard.classList.remove('known', 'known-well', 'famous');
-            appCard.classList.add(status.toLowerCase());
-
-            if (status === 'Famous') {
-                document.querySelector('.top-left').textContent = status;
-            }
-            saveAppData();
-        }
-
-        function showPopup() {
-            document.getElementById('vip-popup').style.display = 'block';
-        }
-
-        function hidePopup() {
-            document.getElementById('vip-popup').style.display = 'none';
         }
 
         function showUpdatePopup() {
@@ -343,77 +354,89 @@
 
         function showSellPopup(appId) {
             currentSellingAppId = appId;
-            const appName = document.getElementById(`app-${appId}`).querySelector('h3').textContent;
-            const sellMessage = document.getElementById('sell-message');
-            sellMessage.textContent = `Are you sure you want to sell ${appName}?`;
+            const appCard = document.getElementById(`app-${appId}`);
+            const appName = appCard.querySelector('h3').innerText;
+            const visits = parseInt(appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1]);
+            const appValue = visits * 10;
+            document.getElementById('sell-message').innerText = `Sell "${appName}" for £${appValue}?`;
             document.getElementById('sell-popup').style.display = 'block';
         }
 
         function hideSellPopup() {
             document.getElementById('sell-popup').style.display = 'none';
+            currentSellingAppId = null;
         }
 
         function confirmSell() {
-            const appCard = document.getElementById(`app-${currentSellingAppId}`);
-            stopIntervals(appCard);
-            appCard.remove();
-            hideSellPopup();
-            saveAppData();
-        }
+            if (currentSellingAppId !== null) {
+                const appCard = document.getElementById(`app-${currentSellingAppId}`);
+                const visits = parseInt(appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1]);
+                const appValue = visits * 10;
+                balance += appValue;
 
-        function checkPassword() {
-            const password = document.getElementById('admin-password').value;
-            if (password === 'Admin123') {
-                window.location.href = 'AdminAccess.Html';
-            } else {
-                alert('Incorrect Password');
+                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
+                stopIntervals(appCard);
+                appCard.remove();
+                hideSellPopup();
+                saveAppData();
             }
         }
 
         function saveAppData() {
-            const appData = [];
-            const appCards = document.querySelectorAll('.app-card');
+            const appContainer = document.getElementById('app-container');
+            const appData = {
+                appCount,
+                balance,
+                apps: []
+            };
 
-            appCards.forEach(appCard => {
-                const appName = appCard.querySelector('h3').textContent;
-                const visits = parseInt(appCard.querySelector('p:nth-of-type(1)').textContent.split(': ')[1]);
-                const likes = parseInt(appCard.querySelector('p:nth-of-type(2)').textContent.split(': ')[1]);
-                const comments = parseInt(appCard.querySelector('p:nth-of-type(3)').textContent.split(': ')[1]);
-                const color = appCard.style.backgroundColor;
-                const status = appCard.classList.contains('famous') ? 'famous' :
-                               appCard.classList.contains('known-well') ? 'known-well' : 'known';
-
-                appData.push({ appName, visits, likes, comments, color, status });
+            appContainer.querySelectorAll('.app-card').forEach(appCard => {
+                appData.apps.push({
+                    id: appCard.id,
+                    name: appCard.querySelector('h3').innerText,
+                    visits: parseInt(appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1]),
+                    likes: parseInt(appCard.querySelector('p:nth-of-type(2)').innerText.split(': ')[1]),
+                    comments: parseInt(appCard.querySelector('p:nth-of-type(3)').innerText.split(': ')[1]),
+                    color: appCard.style.backgroundColor
+                });
             });
 
             localStorage.setItem('appData', JSON.stringify(appData));
-            localStorage.setItem('balance', balance);
         }
 
         function loadAppData() {
-            const savedAppData = JSON.parse(localStorage.getItem('appData'));
-            balance = parseInt(localStorage.getItem('balance')) || 0;
-            document.querySelector('.bottom-right').textContent = `Balance: £${balance}`;
+            const savedData = localStorage.getItem('appData');
+            if (savedData) {
+                const appData = JSON.parse(savedData);
+                appCount = appData.appCount;
+                balance = appData.balance || 0; // Ensure balance is initialized to 0 if not found
+                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
 
-            if (savedAppData) {
-                savedAppData.forEach(data => {
+                appData.apps.forEach(app => {
                     const appCard = document.createElement('div');
-                    appCard.classList.add('app-card', data.status);
-                    appCard.style.backgroundColor = data.color;
+                    appCard.classList.add('app-card');
+                    appCard.style.backgroundColor = app.color;
 
                     appCard.innerHTML = `
-                        <h3>${data.appName}</h3>
-                        <p>Visits: ${data.visits}</p>
-                        <p>Likes: ${data.likes}</p>
-                        <p>Comments: ${data.comments}</p>
-                        <button class="sell-button" onclick="showSellPopup('${appCount}')">Sell</button>
+                        <h3>${app.name}</h3>
+                        <p>Visits: ${app.visits}</p>
+                        <p>Likes: ${app.likes}</p>
+                        <p>Comments: ${app.comments}</p>
+                        <button class="sell-button" onclick="showSellPopup('${app.id.split('-')[1]}')">Sell</button>
                     `;
 
-                    appCard.id = `app-${appCount}`;
-                    appCount++;
+                    appCard.id = app.id;
+
+                    if (app.visits >= visitLimitFamous) {
+                        appCard.classList.add('famous');
+                        document.querySelector('.top-left').innerText = "Famous";
+                    } else if (app.visits >= visitLimitKnownWell) {
+                        appCard.classList.add('known-well');
+                    } else {
+                        appCard.classList.add('known');
+                    }
 
                     document.getElementById('app-container').appendChild(appCard);
-
                     startIntervals(appCard);
                 });
             }
