@@ -237,6 +237,12 @@
         <button onclick="hideSellPopup()">No</button>
     </div>
 
+    <div class="background">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+
     <script>
         let appCount = 0;
         let visitLimitFamous = 100;
@@ -304,6 +310,7 @@
                 appCard.querySelector('h3').style.color = '#FFD700';
                 appCard.querySelectorAll('p').forEach(p => p.style.color = '#FFD700');
             }
+
             saveAppData();
         }
 
