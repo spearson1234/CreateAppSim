@@ -164,6 +164,10 @@
             position: relative;
         }
 
+        .app-card.famous {
+            border: 4px solid #FFD700;
+        }
+
         .app-card h3 {
             margin-top: 0;
         }
@@ -187,20 +191,6 @@
             background-color: #FF473E;
         }
 
-        .famous {
-            font-weight: bold;
-            color: #FFD700;
-            border: 8px solid #FFD700;
-        }
-
-        .known-well {
-            border: 4px solid #FFD700;
-        }
-
-        .known {
-            border: 4px solid #fff;
-        }
-
         /* Top left corner text */
         .top-left {
             position: absolute;
@@ -219,12 +209,6 @@
     </style>
 </head>
 <body>
-    <div class="background">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-    </div>
-
     <div class="top-left">Nobody</div>
     <div class="bottom-right">Balance: £0</div>
     <div class="container">
@@ -255,11 +239,7 @@
 
     <script>
         let appCount = 0;
-        const visitLimitKnownWell = 30;
-        const visitLimitFamous = 100;
-        const visitInterval = 1000;
-        const likeInterval = 2000;
-        const commentInterval = 3000;
+        let visitLimitFamous = 100;
         let balance = 0;
         let currentSellingAppId = null;
 
@@ -293,9 +273,9 @@
         }
 
         function startIntervals(appCard) {
-            const visitIntervalId = setInterval(() => updateVisits(appCard), visitInterval);
-            const likeIntervalId = setInterval(() => updateLikes(appCard), likeInterval);
-            const commentIntervalId = setInterval(() => updateComments(appCard), commentInterval);
+            const visitIntervalId = setInterval(() => updateVisits(appCard), 1000);
+            const likeIntervalId = setInterval(() => updateLikes(appCard), 2000);
+            const commentIntervalId = setInterval(() => updateComments(appCard), 3000);
 
             appCard.dataset.visitIntervalId = visitIntervalId;
             appCard.dataset.likeIntervalId = likeIntervalId;
@@ -319,27 +299,24 @@
             }
 
             if (visits >= visitLimitFamous) {
-                document.querySelector('.top-left').innerText = "Famous";
                 appCard.classList.add('famous');
-            } else if (visits >= visitLimitKnownWell) {
-                appCard.classList.add('known-well');
-            } else {
-                appCard.classList.add('known');
+                document.querySelector('.top-left').innerText = 'Famous';
+                appCard.querySelector('h3').style.color = '#FFD700';
+                appCard.querySelectorAll('p').forEach(p => p.style.color = '#FFD700');
             }
-
             saveAppData();
         }
 
         function updateLikes(appCard) {
             const likesP = appCard.querySelector('p:nth-of-type(2)');
-            const likes = parseInt(likesP.innerText.split(': ')[1]) + 1;
+            let likes = parseInt(likesP.innerText.split(': ')[1]) + 1;
             likesP.innerText = `Likes: ${likes}`;
             saveAppData();
         }
 
         function updateComments(appCard) {
             const commentsP = appCard.querySelector('p:nth-of-type(3)');
-            const comments = parseInt(commentsP.innerText.split(': ')[1]) + 1;
+            let comments = parseInt(commentsP.innerText.split(': ')[1]) + 1;
             commentsP.innerText = `Comments: ${comments}`;
             saveAppData();
         }
@@ -354,91 +331,84 @@
 
         function showSellPopup(appId) {
             currentSellingAppId = appId;
-            const appCard = document.getElementById(`app-${appId}`);
-            const appName = appCard.querySelector('h3').innerText;
-            const visits = parseInt(appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1]);
-            const appValue = visits * 10;
-            document.getElementById('sell-message').innerText = `Sell "${appName}" for £${appValue}?`;
+            document.getElementById('sell-message').innerText = `Are you sure you want to sell the app with ID ${appId}?`;
             document.getElementById('sell-popup').style.display = 'block';
         }
 
         function hideSellPopup() {
             document.getElementById('sell-popup').style.display = 'none';
-            currentSellingAppId = null;
         }
 
         function confirmSell() {
-            if (currentSellingAppId !== null) {
-                const appCard = document.getElementById(`app-${currentSellingAppId}`);
-                const visits = parseInt(appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1]);
-                const appValue = visits * 10;
-                balance += appValue;
-
-                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
-                stopIntervals(appCard);
-                appCard.remove();
-                hideSellPopup();
-                saveAppData();
-            }
+            const appCard = document.getElementById(`app-${currentSellingAppId}`);
+            stopIntervals(appCard);
+            appCard.remove();
+            balance += 100; // Selling price
+            document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
+            hideSellPopup();
+            saveAppData();
         }
 
         function saveAppData() {
             const appContainer = document.getElementById('app-container');
-            const appData = {
-                appCount,
-                balance,
-                apps: []
-            };
-
-            appContainer.querySelectorAll('.app-card').forEach(appCard => {
-                appData.apps.push({
+            const appCardsData = [];
+            document.querySelectorAll('.app-card').forEach(appCard => {
+                const visits = appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1];
+                const likes = appCard.querySelector('p:nth-of-type(2)').innerText.split(': ')[1];
+                const comments = appCard.querySelector('p:nth-of-type(3)').innerText.split(': ')[1];
+                const backgroundColor = appCard.style.backgroundColor;
+                const appData = {
                     id: appCard.id,
                     name: appCard.querySelector('h3').innerText,
-                    visits: parseInt(appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1]),
-                    likes: parseInt(appCard.querySelector('p:nth-of-type(2)').innerText.split(': ')[1]),
-                    comments: parseInt(appCard.querySelector('p:nth-of-type(3)').innerText.split(': ')[1]),
-                    color: appCard.style.backgroundColor
-                });
+                    visits: visits,
+                    likes: likes,
+                    comments: comments,
+                    backgroundColor: backgroundColor,
+                    isFamous: appCard.classList.contains('famous')
+                };
+                appCardsData.push(appData);
             });
 
-            localStorage.setItem('appData', JSON.stringify(appData));
+            localStorage.setItem('apps', JSON.stringify(appCardsData));
+            localStorage.setItem('appCount', appCount);
+            localStorage.setItem('balance', balance);
+            localStorage.setItem('topLeftText', document.querySelector('.top-left').innerText);
         }
 
         function loadAppData() {
-            const savedData = localStorage.getItem('appData');
-            if (savedData) {
-                const appData = JSON.parse(savedData);
-                appCount = appData.appCount;
-                balance = appData.balance || 0; // Ensure balance is initialized to 0 if not found
-                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
+            const savedApps = JSON.parse(localStorage.getItem('apps'));
+            const savedAppCount = localStorage.getItem('appCount');
+            const savedBalance = localStorage.getItem('balance');
+            const savedTopLeftText = localStorage.getItem('topLeftText');
 
-                appData.apps.forEach(app => {
+            if (savedApps) {
+                savedApps.forEach(appData => {
                     const appCard = document.createElement('div');
                     appCard.classList.add('app-card');
-                    appCard.style.backgroundColor = app.color;
-
+                    appCard.id = appData.id;
+                    appCard.style.backgroundColor = appData.backgroundColor;
                     appCard.innerHTML = `
-                        <h3>${app.name}</h3>
-                        <p>Visits: ${app.visits}</p>
-                        <p>Likes: ${app.likes}</p>
-                        <p>Comments: ${app.comments}</p>
-                        <button class="sell-button" onclick="showSellPopup('${app.id.split('-')[1]}')">Sell</button>
+                        <h3>${appData.name}</h3>
+                        <p>Visits: ${appData.visits}</p>
+                        <p>Likes: ${appData.likes}</p>
+                        <p>Comments: ${appData.comments}</p>
+                        <button class="sell-button" onclick="showSellPopup('${appData.id.split('-')[1]}')">Sell</button>
                     `;
 
-                    appCard.id = app.id;
-
-                    if (app.visits >= visitLimitFamous) {
+                    if (appData.isFamous) {
                         appCard.classList.add('famous');
-                        document.querySelector('.top-left').innerText = "Famous";
-                    } else if (app.visits >= visitLimitKnownWell) {
-                        appCard.classList.add('known-well');
-                    } else {
-                        appCard.classList.add('known');
+                        appCard.querySelector('h3').style.color = '#FFD700';
+                        appCard.querySelectorAll('p').forEach(p => p.style.color = '#FFD700');
                     }
 
                     document.getElementById('app-container').appendChild(appCard);
                     startIntervals(appCard);
                 });
+
+                appCount = parseInt(savedAppCount);
+                balance = parseInt(savedBalance);
+                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
+                document.querySelector('.top-left').innerText = savedTopLeftText;
             }
         }
     </script>
