@@ -191,6 +191,15 @@
             background-color: #FF473E;
         }
 
+        .edit-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 18px;
+        }
+
         /* Top left corner text */
         .top-left {
             position: absolute;
@@ -205,6 +214,58 @@
             bottom: 10px;
             right: 10px;
             font-size: 16px;
+        }
+
+        /* Edit popup styles */
+        .edit-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            width: 400px;
+        }
+
+        .edit-popup .left {
+            float: left;
+            width: 45%;
+        }
+
+        .edit-popup .right {
+            float: right;
+            width: 45%;
+        }
+
+        .edit-popup .right .app-preview {
+            border: 2px solid #fff;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .edit-popup input[type="number"] {
+            font-size: 16px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2c2c2c;
+            color: #fff;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .edit-popup .description {
+            font-size: 12px;
+            color: #bbb;
+        }
+
+        .clear {
+            clear: both;
         }
     </style>
 </head>
@@ -237,6 +298,23 @@
         <button onclick="hideSellPopup()">No</button>
     </div>
 
+    <div class="edit-popup" id="edit-popup">
+        <span class="exit-button" onclick="hideEditPopup()">×</span>
+        <div class="left">
+            <h3>Edit Features</h3>
+            <button class="update-button" onclick="addFeature('premium')">Add Premium</button>
+            <button class="update-button" onclick="addFeature('npc')">NPC Must buy the app to get it</button>
+            <input type="number" id="app-price" placeholder="Set app price">
+            <p class="description">Warning: NPC players will mostly not like to buy the game if the price is too high.</p>
+        </div>
+        <div class="right">
+            <h3>App Preview</h3>
+            <div class="app-preview" id="app-preview"></div>
+        </div>
+        <div class="clear"></div>
+        <button onclick="saveFeatures()">Save</button>
+    </div>
+
     <div class="background">
         <div class="circle"></div>
         <div class="circle"></div>
@@ -248,6 +326,7 @@
         let visitLimitFamous = 100;
         let balance = 0;
         let currentSellingAppId = null;
+        let currentEditingApp = null;
 
         document.addEventListener("DOMContentLoaded", loadAppData);
 
@@ -265,6 +344,7 @@
                     <p>Likes: 0</p>
                     <p>Comments: 0</p>
                     <button class="sell-button" onclick="showSellPopup('${appCount}')">Sell</button>
+                    <span class="edit-icon" onclick="showEditPopup('${appCount}')">✏️</span>
                 `;
 
                 appCard.id = `app-${appCount}`;
@@ -328,6 +408,22 @@
             saveAppData();
         }
 
+        function updateAppStorePurchases(appCard) {
+            if (!appCard.classList.contains('famous')) {
+                return;
+            }
+            const price = parseInt(appCard.dataset.price) || 0;
+            if (price === 0) {
+                return;
+            }
+            const purchasesP = appCard.querySelector('.appstore-purchases');
+            let purchases = parseInt(purchasesP.innerText.split(': ')[1]) + Math.floor(Math.random() * 5);
+            purchasesP.innerText = `AppStore Purchases: ${purchases}`;
+            balance += purchases * price;
+            document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
+            saveAppData();
+        }
+
         function showUpdatePopup() {
             document.getElementById('update-popup').style.display = 'block';
         }
@@ -356,6 +452,52 @@
             saveAppData();
         }
 
+        function showEditPopup(appId) {
+            currentEditingApp = appId;
+            const appCard = document.getElementById(`app-${appId}`);
+            document.getElementById('app-preview').innerHTML = appCard.innerHTML.replace('<span class="edit-icon" onclick="showEditPopup(\'' + appId + '\')">✏️</span>', '');
+            document.getElementById('edit-popup').style.display = 'block';
+        }
+
+        function hideEditPopup() {
+            document.getElementById('edit-popup').style.display = 'none';
+        }
+
+        function addFeature(feature) {
+            const appPreview = document.getElementById('app-preview');
+            if (feature === 'premium') {
+                const premiumP = document.createElement('p');
+                premiumP.classList.add('premium');
+                premiumP.innerText = 'Premium Purchase: 0';
+                appPreview.insertBefore(premiumP, appPreview.querySelector('.sell-button'));
+            } else if (feature === 'npc') {
+                const npcP = document.createElement('p');
+                npcP.classList.add('appstore-purchases');
+                npcP.innerText = 'AppStore Purchases: 0';
+                appPreview.insertBefore(npcP, appPreview.querySelector('.sell-button'));
+            }
+        }
+
+        function saveFeatures() {
+            const appCard = document.getElementById(`app-${currentEditingApp}`);
+            const appPreview = document.getElementById('app-preview');
+            const price = document.getElementById('app-price').value;
+            appCard.innerHTML = appPreview.innerHTML;
+            if (price) {
+                appCard.dataset.price = price;
+                const priceP = document.createElement('p');
+                priceP.innerText = `Price: £${price}`;
+                appCard.insertBefore(priceP, appCard.querySelector('.sell-button'));
+            }
+            const editIcon = document.createElement('span');
+            editIcon.classList.add('edit-icon');
+            editIcon.innerText = '✏️';
+            editIcon.setAttribute('onclick', `showEditPopup('${currentEditingApp}')`);
+            appCard.appendChild(editIcon);
+            hideEditPopup();
+            saveAppData();
+        }
+
         function saveAppData() {
             const appContainer = document.getElementById('app-container');
             const appCardsData = [];
@@ -364,6 +506,9 @@
                 const likes = appCard.querySelector('p:nth-of-type(2)').innerText.split(': ')[1];
                 const comments = appCard.querySelector('p:nth-of-type(3)').innerText.split(': ')[1];
                 const backgroundColor = appCard.style.backgroundColor;
+                const price = appCard.dataset.price || 0;
+                const premium = appCard.querySelector('.premium') ? true : false;
+                const npc = appCard.querySelector('.appstore-purchases') ? true : false;
                 const appData = {
                     id: appCard.id,
                     name: appCard.querySelector('h3').innerText,
@@ -371,7 +516,10 @@
                     likes: likes,
                     comments: comments,
                     backgroundColor: backgroundColor,
-                    isFamous: appCard.classList.contains('famous')
+                    isFamous: appCard.classList.contains('famous'),
+                    price: price,
+                    premium: premium,
+                    npc: npc
                 };
                 appCardsData.push(appData);
             });
@@ -399,8 +547,18 @@
                         <p>Visits: ${appData.visits}</p>
                         <p>Likes: ${appData.likes}</p>
                         <p>Comments: ${appData.comments}</p>
+                        ${appData.premium ? '<p class="premium">Premium Purchase: 0</p>' : ''}
+                        ${appData.npc ? '<p class="appstore-purchases">AppStore Purchases: 0</p>' : ''}
                         <button class="sell-button" onclick="showSellPopup('${appData.id.split('-')[1]}')">Sell</button>
+                        <span class="edit-icon" onclick="showEditPopup('${appData.id.split('-')[1]}')">✏️</span>
                     `;
+
+                    if (appData.price) {
+                        const priceP = document.createElement('p');
+                        priceP.innerText = `Price: £${appData.price}`;
+                        appCard.insertBefore(priceP, appCard.querySelector('.sell-button'));
+                        appCard.dataset.price = appData.price;
+                    }
 
                     if (appData.isFamous) {
                         appCard.classList.add('famous');
@@ -410,6 +568,9 @@
 
                     document.getElementById('app-container').appendChild(appCard);
                     startIntervals(appCard);
+                    if (appData.npc) {
+                        setInterval(() => updateAppStorePurchases(appCard), 5000);
+                    }
                 });
 
                 appCount = parseInt(savedAppCount);
