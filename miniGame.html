@@ -1,584 +1,515 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Creator</title>
-    <style>
-        /* Body styles */
-        body {
-            background-color: #1e1e1e;
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Background animation styles */
-        .background {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .circle {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.6);
-            animation: circleAnimation 10s linear infinite;
-            mix-blend-mode: overlay;
-        }
-
-        .circle:nth-child(1) {
-            top: 20%;
-            left: 10%;
-            animation-duration: 8s;
-        }
-
-        .circle:nth-child(2) {
-            top: 50%;
-            left: 70%;
-            animation-duration: 10s;
-        }
-
-        .circle:nth-child(3) {
-            top: 80%;
-            left: 30%;
-            animation-duration: 12s;
-        }
-
-        @keyframes circleAnimation {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-1000px) rotate(720deg);
-                opacity: 0;
-            }
-        }
-
-        /* Container styles */
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100vh;
-            position: relative;
-            padding-top: 50px;
-            padding-bottom: 20px;
-        }
-
-        /* Input and button styles */
-        input[type="text"], input[type="color"] {
-            font-size: 16px;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #2c2c2c;
-            color: #fff;
-            width: 300px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            font-size: 16px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: #fff;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        /* Update button styles */
-        .update-button {
-            font-size: 16px;
-            padding: 10px 20px;
-            border: 2px solid #4CAF50;
-            border-radius: 5px;
-            background-color: transparent;
-            color: #4CAF50;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        /* Popup styles */
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #2c2c2c;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .popup h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-
-        .popup p {
-            margin: 5px 0;
-        }
-
-        .exit-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            color: #fff;
-            font-size: 20px;
-        }
-
-        /* App container styles */
-        .app-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        /* App card styles */
-        .app-card {
-            background-color: #2c2c2c;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            width: 200px;
-            border: 4px solid #fff;
-            cursor: default;
-            position: relative;
-        }
-
-        .app-card.famous {
-            border: 4px solid #FFD700;
-        }
-
-        .app-card h3 {
-            margin-top: 0;
-        }
-
-        .app-card p {
-            margin: 5px 0;
-            font-size: 16px;
-        }
-
-        .sell-button {
-            font-size: 14px;
-            padding: 5px 10px;
-            background-color: #FF6347;
-            color: #fff;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .sell-button:hover {
-            background-color: #FF473E;
-        }
-
-        .edit-icon {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            color: #fff;
-            font-size: 18px;
-        }
-
-        /* Top left corner text */
-        .top-left {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 20px;
-        }
-
-        /* Bottom right corner balance */
-        .bottom-right {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 16px;
-        }
-
-        /* Edit popup styles */
-        .edit-popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #2c2c2c;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            width: 400px;
-        }
-
-        .edit-popup .left {
-            float: left;
-            width: 45%;
-        }
-
-        .edit-popup .right {
-            float: right;
-            width: 45%;
-        }
-
-        .edit-popup .right .app-preview {
-            border: 2px solid #fff;
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .edit-popup input[type="number"] {
-            font-size: 16px;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #2c2c2c;
-            color: #fff;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .edit-popup .description {
-            font-size: 12px;
-            color: #bbb;
-        }
-
-        .clear {
-            clear: both;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lamu Translator with LE TG Icon Logo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: "Fira Mono", monospace;
+      background-color: #0f0f1a;
+      color: #e0f7fa;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+    }
+    /* Scrollbar styling for textarea and sidebar */
+    textarea::-webkit-scrollbar,
+    #sidebar::-webkit-scrollbar,
+    #sidebar .admin-content::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    textarea::-webkit-scrollbar-thumb,
+    #sidebar::-webkit-scrollbar-thumb,
+    #sidebar .admin-content::-webkit-scrollbar-thumb {
+      background-color: #ff4d94cc;
+      border-radius: 10px;
+      box-shadow: 0 0 8px #ff4d94cc;
+      border: 2px solid #0f0f1a;
+    }
+    textarea::-webkit-scrollbar-track,
+    #sidebar::-webkit-scrollbar-track,
+    #sidebar .admin-content::-webkit-scrollbar-track {
+      background: #1a0a1a;
+      border-radius: 10px;
+    }
+    /* Firefox scrollbar */
+    textarea,
+    #sidebar,
+    #sidebar .admin-content {
+      scrollbar-width: thin;
+      scrollbar-color: #ff4d94cc #1a0a1a;
+    }
+    /* Icon logo container */
+    .icon-logo {
+      width: 48px;
+      height: 48px;
+      background: radial-gradient(circle at center, #ff4d94 0%, #660033 80%);
+      border-radius: 12px;
+      box-shadow: 0 0 20px #ff4d94cc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      flex-shrink: 0;
+      font-weight: 900;
+      font-family: "Fira Mono", monospace;
+      color: #ff4d94;
+      text-shadow:
+        0 0 6px #ff4d94cc,
+        0 0 10px #ff1a66cc;
+      letter-spacing: -0.05em;
+      font-size: 1.75rem;
+      line-height: 1;
+    }
+    /* Sidebar backdrop */
+    #sidebarBackdrop {
+      background-color: rgba(0, 0, 0, 0.6);
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+    }
+    #sidebarBackdrop.active {
+      display: block;
+    }
+    /* Sidebar */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background: #1a001a;
+      box-shadow: 2px 0 15px #ff4d94cc;
+      transform: translateX(-300px);
+      transition: transform 0.3s ease-in-out;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+    }
+    #sidebar.active {
+      transform: translateX(0);
+    }
+    #sidebar h2 {
+      color: #ff4d94;
+      font-weight: 700;
+      font-family: "Fira Mono", monospace;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      user-select: none;
+      text-align: center;
+      text-shadow:
+        0 0 6px #ff4d94cc,
+        0 0 10px #ff1a66cc;
+    }
+    #sidebar button.close-btn {
+      align-self: flex-end;
+      background: transparent;
+      border: none;
+      color: #ff4d94;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      transition: color 0.2s ease;
+    }
+    #sidebar button.close-btn:hover {
+      color: #ff1a66;
+    }
+    #sidebar .admin-content {
+      flex: 1;
+      color: #f8cce7;
+      font-family: "Fira Mono", monospace;
+      font-size: 1rem;
+      overflow-y: auto;
+    }
+    #sidebar .admin-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #ff4d94;
+    }
+    #sidebar .admin-content input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 2px solid #ff4d9450;
+      background-color: #33001a;
+      color: #ff4d94;
+      font-family: "Fira Mono", monospace;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    #sidebar .admin-content input[type="password"]:focus {
+      border-color: #ff4d94;
+      box-shadow: 0 0 10px #ff4d94cc;
+    }
+    #sidebar .admin-content button {
+      margin-top: 1rem;
+      width: 100%;
+      background-color: #ff4d94;
+      color: #33001a;
+      font-weight: 700;
+      padding: 0.5rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      font-family: "Fira Mono", monospace;
+      font-size: 1rem;
+      box-shadow: 0 0 15px #ff4d94cc;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    #sidebar .admin-content button:hover {
+      background-color: #ff1a66;
+      box-shadow: 0 0 20px #ff1a66cc;
+    }
+    #sidebar .admin-content .admin-panel {
+      margin-top: 1rem;
+      border-top: 1px solid #ff4d9450;
+      padding-top: 1rem;
+      user-select: text;
+      color: #f8cce7;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    #sidebar .admin-content .admin-panel table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    #sidebar .admin-content .admin-panel th,
+    #sidebar .admin-content .admin-panel td {
+      border: 1px solid #ff4d9450;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    #sidebar .admin-content .admin-panel th {
+      background-color: #660033;
+      color: #ff4d94;
+      font-weight: 700;
+      user-select: none;
+    }
+    #sidebar .admin-content .admin-panel td {
+      color: #f8cce7;
+      word-break: break-word;
+    }
+    /* Hamburger button */
+    #hamburgerBtn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      background: transparent;
+      border: none;
+      color: #ff4d94;
+      font-size: 2rem;
+      cursor: pointer;
+      display: none;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+    #hamburgerBtn:hover {
+      color: #ff1a66;
+    }
+    /* Show hamburger only on mobile */
+    @media (max-width: 640px) {
+      #hamburgerBtn {
+        display: block;
+      }
+      main {
+        max-width: 100vw;
+        height: 100vh;
+        padding: 5rem 1.5rem 1.5rem 1.5rem;
+        box-sizing: border-box;
+        overflow-y: auto;
+      }
+    }
+    /* On larger screens, sidebar is hidden but admin panel can appear as modal */
+    @media (min-width: 641px) {
+      #hamburgerBtn {
+        display: none;
+      }
+      #sidebar {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) translateX(-300px);
+        width: 400px;
+        max-height: 80vh;
+        border-radius: 1rem;
+        box-shadow: 0 0 30px #ff4d94cc;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        opacity: 0;
+        overflow-y: auto;
+        background: #1a001a;
+      }
+      #sidebar.active {
+        transform: translate(-50%, -50%) translateX(0);
+        opacity: 1;
+      }
+      #sidebarBackdrop {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="top-left">Nobody</div>
-    <div class="bottom-right">Balance: £0</div>
-    <div class="container">
-        <input type="text" id="app-name" placeholder="Enter app name">
-        <input type="color" id="app-color" value="#2c2c2c">
-        <button onclick="createApp()">Create App</button>
-        <button class="update-button" onclick="showUpdatePopup()">Update</button>
-        <div id="app-container" class="app-container"></div>
+  <button id="hamburgerBtn" aria-label="Open admin panel menu" aria-haspopup="true" aria-controls="sidebar" aria-expanded="false">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <aside id="sidebar" role="dialog" aria-modal="true" aria-labelledby="sidebarTitle" tabindex="-1" aria-hidden="true">
+    <button class="close-btn" aria-label="Close admin panel menu">&times;</button>
+    <h2 id="sidebarTitle">Admin Panel</h2>
+    <div class="admin-content">
+      <form id="adminLoginForm" autocomplete="off">
+        <label for="adminPassword">Enter Password</label>
+        <input type="password" id="adminPassword" name="adminPassword" aria-required="true" autocomplete="new-password" />
+        <button type="submit">Submit</button>
+      </form>
+      <div class="admin-panel" id="adminPanelContent" style="display:none;" tabindex="0" aria-live="polite" aria-label="Admin panel content">
+        <table>
+          <thead>
+            <tr>
+              <th>Lamu Word</th>
+              <th>English Meaning</th>
+            </tr>
+          </thead>
+          <tbody id="adminWordsTableBody">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
+  </aside>
 
-    <div class="popup" id="update-popup">
-        <span class="exit-button" onclick="hideUpdatePopup()">×</span>
-        <h3>Updates</h3>
-        <p>.Custom Color Cards</p>
-        <p>.Update Info</p>
-        <p>.Bugs Fixed</p>
-        <p>.Automatic Save</p>
-        <p>.Animated Background</p>
-    </div>
+  <main
+    class="w-full max-w-lg bg-gradient-to-br from-[#1a1a2e] to-[#121224] rounded-3xl shadow-[0_0_30px_#ff4d94cc] p-8 flex flex-col"
+  >
+    <header class="flex items-center justify-center gap-3 mb-6 select-none">
+      <div class="icon-logo" aria-label="LE icon logo" role="img" title="LE icon logo" aria-hidden="true" style="">
+        LE
+      </div>
+      <h1 class="text-3xl font-extrabold text-pink-400 text-center">
+        Lamu → English Translator
+      </h1>
+    </header>
 
-    <div class="popup" id="sell-popup">
-        <span class="exit-button" onclick="hideSellPopup()">×</span>
-        <h3>Sell App Confirmation</h3>
-        <p id="sell-message"></p>
-        <button onclick="confirmSell()">Yes</button>
-        <button onclick="hideSellPopup()">No</button>
-    </div>
+    <label class="sr-only" for="lamuInput">Lamu phrase input</label>
+    <textarea
+      class="w-full bg-[#33001a] text-pink-300 border-2 border-pink-400/30 rounded-xl p-4 text-lg resize-none placeholder-pink-300 focus:outline-none focus:border-pink-400 focus:shadow-[0_0_10px_#ff4d94cc] transition-colors"
+      id="lamuInput"
+      placeholder="Type your Lamu phrase here..."
+      rows="5"
+      aria-describedby="charCount"
+      maxlength="200"
+    ></textarea>
+    <div class="mt-1 text-right text-pink-300 text-sm select-none" id="charCount" aria-live="polite" aria-atomic="true">0 / 200 characters</div>
 
-    <div class="edit-popup" id="edit-popup">
-        <span class="exit-button" onclick="hideEditPopup()">×</span>
-        <div class="left">
-            <h3>Edit Features</h3>
-            <button class="update-button" onclick="addFeature('premium')">Add Premium</button>
-            <button class="update-button" onclick="addFeature('npc')">NPC Must buy the app to get it</button>
-            <input type="number" id="app-price" placeholder="Set app price">
-            <p class="description">Warning: NPC players will mostly not like to buy the game if the price is too high.</p>
-        </div>
-        <div class="right">
-            <h3>App Preview</h3>
-            <div class="app-preview" id="app-preview"></div>
-        </div>
-        <div class="clear"></div>
-        <button onclick="saveFeatures()">Save</button>
-    </div>
+    <section class="mt-6 flex flex-col gap-4">
+      <button
+        aria-label="Speak Lamu phrase aloud"
+        class="flex items-center justify-center gap-2 bg-pink-400 text-[#33001a] font-semibold rounded-xl px-6 py-3 shadow-[0_0_15px_#ff4d94cc] hover:bg-pink-500 hover:shadow-[0_0_20px_#ff1a66cc] transition-all"
+        id="speakBtn"
+      >
+        <i class="fas fa-volume-up"></i> Speak
+      </button>
+      <div
+        aria-atomic="true"
+        aria-live="polite"
+        class="bg-[#33001a] border border-pink-400/20 rounded-xl p-4 text-pink-100 text-lg min-h-[6rem] select-text break-words"
+        id="englishOutput"
+        role="region"
+      >
+        Translation appears here...
+      </div>
+    </section>
 
-    <div class="background">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-    </div>
+    <p class="mt-6 text-center text-pink-300 text-sm italic select-none">
+      Try phrases like
+      <span class="font-semibold text-pink-400">"daboo flunka"</span> or
+      <span class="font-semibold text-pink-400">"è suva"</span>
+    </p>
+  </main>
 
-    <script>
-        let appCount = 0;
-        let visitLimitFamous = 100;
-        let balance = 0;
-        let currentSellingAppId = null;
-        let currentEditingApp = null;
+  <script>
+    const dictionary = {
+      daboo: "David",
+      flunka: "stinks",
+      miba: "sister",
+      jibber: "funny",
+      grobby: "mean",
+      doveli: "fucking",
+      bab: "really",
+      boi: "?",
+      tow: "yes",
+      dinka: "bastard",
+      kel: "head",
+      niko: "Niko",
+      su: "'s",
+      glin: "shiny",
+      bruv: "bold",
+      è: "I",
+      suva: "am better",
+      den: "do",
+      tu: "you",
+      zo: "like",
+      pengon: "penguins",
+      mocob: "mum",
+      dola: "dad",
+      atta: "also",
+      en: "as",
+      end: "and",
+      kow: "is",
+    };
 
-        document.addEventListener("DOMContentLoaded", loadAppData);
+    const input = document.getElementById("lamuInput");
+    const output = document.getElementById("englishOutput");
+    const speakBtn = document.getElementById("speakBtn");
+    const charCount = document.getElementById("charCount");
 
-        function createApp() {
-            const appName = document.getElementById('app-name').value;
-            const appColor = document.getElementById('app-color').value;
-            if (appName.trim() !== '') {
-                const appCard = document.createElement('div');
-                appCard.classList.add('app-card');
-                appCard.style.backgroundColor = appColor;
+    function translate(text) {
+      if (!text.trim()) return "Translation appears here...";
+      const words = text.trim().toLowerCase().split(/\s+/);
+      const translated = words.map((word) => {
+        const clean = word.replace(/[^a-z0-9éèó]/gi, "");
+        return dictionary[clean] || word;
+      });
+      return translated.join(" ");
+    }
 
-                appCard.innerHTML = `
-                    <h3>${appName}</h3>
-                    <p>Visits: 0</p>
-                    <p>Likes: 0</p>
-                    <p>Comments: 0</p>
-                    <button class="sell-button" onclick="showSellPopup('${appCount}')">Sell</button>
-                    <span class="edit-icon" onclick="showEditPopup('${appCount}')">✏️</span>
-                `;
+    input.addEventListener("input", () => {
+      output.textContent = translate(input.value);
+      charCount.textContent = `${input.value.length} / 200 characters`;
+    });
 
-                appCard.id = `app-${appCount}`;
-                appCount++;
+    speakBtn.addEventListener("click", () => {
+      const text = input.value.trim();
+      if (!text) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.95;
+      speechSynthesis.speak(utterance);
+    });
 
-                document.getElementById('app-container').appendChild(appCard);
-                document.getElementById('app-name').value = '';
+    speakBtn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        speakBtn.click();
+      }
+    });
 
-                startIntervals(appCard);
-                saveAppData();
-            }
+    // Sidebar toggle
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+
+    function openSidebar() {
+      sidebar.classList.add("active");
+      sidebar.setAttribute("aria-hidden", "false");
+      if (sidebarBackdrop) sidebarBackdrop.classList.add("active");
+      hamburgerBtn.setAttribute("aria-expanded", "true");
+      sidebar.focus();
+    }
+    function closeSidebar() {
+      sidebar.classList.remove("active");
+      sidebar.setAttribute("aria-hidden", "true");
+      if (sidebarBackdrop) sidebarBackdrop.classList.remove("active");
+      hamburgerBtn.setAttribute("aria-expanded", "false");
+      hamburgerBtn.focus();
+      resetAdminPanel();
+    }
+
+    hamburgerBtn.addEventListener("click", openSidebar);
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener("click", closeSidebar);
+
+    const closeBtn = sidebar.querySelector("button.close-btn");
+    closeBtn.addEventListener("click", closeSidebar);
+
+    // Admin panel logic
+    const adminLoginForm = document.getElementById("adminLoginForm");
+    const adminPasswordInput = document.getElementById("adminPassword");
+    const adminPanelContent = document.getElementById("adminPanelContent");
+    const adminWordsTableBody = document.getElementById("adminWordsTableBody");
+
+    function resetAdminPanel() {
+      adminLoginForm.style.display = "block";
+      adminPanelContent.style.display = "none";
+      adminPasswordInput.value = "";
+      adminWordsTableBody.innerHTML = "";
+    }
+
+    function populateAdminTable() {
+      adminWordsTableBody.innerHTML = "";
+      const entries = Object.entries(dictionary).sort((a, b) => a[0].localeCompare(b[0]));
+      for (const [lamu, eng] of entries) {
+        const tr = document.createElement("tr");
+        const tdLamu = document.createElement("td");
+        tdLamu.textContent = lamu;
+        const tdEng = document.createElement("td");
+        tdEng.textContent = eng;
+        tr.appendChild(tdLamu);
+        tr.appendChild(tdEng);
+        adminWordsTableBody.appendChild(tr);
+      }
+    }
+
+    adminLoginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const password = adminPasswordInput.value.trim();
+      if (password === "Flunka") {
+        adminLoginForm.style.display = "none";
+        adminPanelContent.style.display = "block";
+        populateAdminTable();
+        adminPanelContent.focus();
+      } else {
+        alert("Incorrect password. Try again.");
+        adminPasswordInput.value = "";
+        adminPasswordInput.focus();
+      }
+    });
+
+    // Trap focus inside sidebar when open for accessibility
+    sidebar.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        const focusableElements = sidebar.querySelectorAll(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
         }
-
-        function startIntervals(appCard) {
-            const visitIntervalId = setInterval(() => updateVisits(appCard), 1000);
-            const likeIntervalId = setInterval(() => updateLikes(appCard), 2000);
-            const commentIntervalId = setInterval(() => updateComments(appCard), 3000);
-
-            appCard.dataset.visitIntervalId = visitIntervalId;
-            appCard.dataset.likeIntervalId = likeIntervalId;
-            appCard.dataset.commentIntervalId = commentIntervalId;
-        }
-
-        function stopIntervals(appCard) {
-            clearInterval(parseInt(appCard.dataset.visitIntervalId));
-            clearInterval(parseInt(appCard.dataset.likeIntervalId));
-            clearInterval(parseInt(appCard.dataset.commentIntervalId));
-        }
-
-        function updateVisits(appCard) {
-            const visitsP = appCard.querySelector('p:nth-of-type(1)');
-            let visits = parseInt(visitsP.innerText.split(': ')[1]) + 1;
-            visitsP.innerText = `Visits: ${visits}`;
-
-            if (visits % 10 === 0) {
-                balance += 10;
-                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
-            }
-
-            if (visits >= visitLimitFamous) {
-                appCard.classList.add('famous');
-                document.querySelector('.top-left').innerText = 'Famous';
-                appCard.querySelector('h3').style.color = '#FFD700';
-                appCard.querySelectorAll('p').forEach(p => p.style.color = '#FFD700');
-            }
-
-            saveAppData();
-        }
-
-        function updateLikes(appCard) {
-            const likesP = appCard.querySelector('p:nth-of-type(2)');
-            let likes = parseInt(likesP.innerText.split(': ')[1]) + 1;
-            likesP.innerText = `Likes: ${likes}`;
-            saveAppData();
-        }
-
-        function updateComments(appCard) {
-            const commentsP = appCard.querySelector('p:nth-of-type(3)');
-            let comments = parseInt(commentsP.innerText.split(': ')[1]) + 1;
-            commentsP.innerText = `Comments: ${comments}`;
-            saveAppData();
-        }
-
-        function updateAppStorePurchases(appCard) {
-            if (!appCard.classList.contains('famous')) {
-                return;
-            }
-            const price = parseInt(appCard.dataset.price) || 0;
-            if (price === 0) {
-                return;
-            }
-            const purchasesP = appCard.querySelector('.appstore-purchases');
-            let purchases = parseInt(purchasesP.innerText.split(': ')[1]) + Math.floor(Math.random() * 5);
-            purchasesP.innerText = `AppStore Purchases: ${purchases}`;
-            balance += purchases * price;
-            document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
-            saveAppData();
-        }
-
-        function showUpdatePopup() {
-            document.getElementById('update-popup').style.display = 'block';
-        }
-
-        function hideUpdatePopup() {
-            document.getElementById('update-popup').style.display = 'none';
-        }
-
-        function showSellPopup(appId) {
-            currentSellingAppId = appId;
-            document.getElementById('sell-message').innerText = `Are you sure you want to sell the app with ID ${appId}?`;
-            document.getElementById('sell-popup').style.display = 'block';
-        }
-
-        function hideSellPopup() {
-            document.getElementById('sell-popup').style.display = 'none';
-        }
-
-        function confirmSell() {
-            const appCard = document.getElementById(`app-${currentSellingAppId}`);
-            stopIntervals(appCard);
-            appCard.remove();
-            balance += 100; // Selling price
-            document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
-            hideSellPopup();
-            saveAppData();
-        }
-
-        function showEditPopup(appId) {
-            currentEditingApp = appId;
-            const appCard = document.getElementById(`app-${appId}`);
-            document.getElementById('app-preview').innerHTML = appCard.innerHTML.replace('<span class="edit-icon" onclick="showEditPopup(\'' + appId + '\')">✏️</span>', '');
-            document.getElementById('edit-popup').style.display = 'block';
-        }
-
-        function hideEditPopup() {
-            document.getElementById('edit-popup').style.display = 'none';
-        }
-
-        function addFeature(feature) {
-            const appPreview = document.getElementById('app-preview');
-            if (feature === 'premium') {
-                const premiumP = document.createElement('p');
-                premiumP.classList.add('premium');
-                premiumP.innerText = 'Premium Purchase: 0';
-                appPreview.insertBefore(premiumP, appPreview.querySelector('.sell-button'));
-            } else if (feature === 'npc') {
-                const npcP = document.createElement('p');
-                npcP.classList.add('appstore-purchases');
-                npcP.innerText = 'AppStore Purchases: 0';
-                appPreview.insertBefore(npcP, appPreview.querySelector('.sell-button'));
-            }
-        }
-
-        function saveFeatures() {
-            const appCard = document.getElementById(`app-${currentEditingApp}`);
-            const appPreview = document.getElementById('app-preview');
-            const price = document.getElementById('app-price').value;
-            appCard.innerHTML = appPreview.innerHTML;
-            if (price) {
-                appCard.dataset.price = price;
-                const priceP = document.createElement('p');
-                priceP.innerText = `Price: £${price}`;
-                appCard.insertBefore(priceP, appCard.querySelector('.sell-button'));
-            }
-            const editIcon = document.createElement('span');
-            editIcon.classList.add('edit-icon');
-            editIcon.innerText = '✏️';
-            editIcon.setAttribute('onclick', `showEditPopup('${currentEditingApp}')`);
-            appCard.appendChild(editIcon);
-            hideEditPopup();
-            saveAppData();
-        }
-
-        function saveAppData() {
-            const appContainer = document.getElementById('app-container');
-            const appCardsData = [];
-            document.querySelectorAll('.app-card').forEach(appCard => {
-                const visits = appCard.querySelector('p:nth-of-type(1)').innerText.split(': ')[1];
-                const likes = appCard.querySelector('p:nth-of-type(2)').innerText.split(': ')[1];
-                const comments = appCard.querySelector('p:nth-of-type(3)').innerText.split(': ')[1];
-                const backgroundColor = appCard.style.backgroundColor;
-                const price = appCard.dataset.price || 0;
-                const premium = appCard.querySelector('.premium') ? true : false;
-                const npc = appCard.querySelector('.appstore-purchases') ? true : false;
-                const appData = {
-                    id: appCard.id,
-                    name: appCard.querySelector('h3').innerText,
-                    visits: visits,
-                    likes: likes,
-                    comments: comments,
-                    backgroundColor: backgroundColor,
-                    isFamous: appCard.classList.contains('famous'),
-                    price: price,
-                    premium: premium,
-                    npc: npc
-                };
-                appCardsData.push(appData);
-            });
-
-            localStorage.setItem('apps', JSON.stringify(appCardsData));
-            localStorage.setItem('appCount', appCount);
-            localStorage.setItem('balance', balance);
-            localStorage.setItem('topLeftText', document.querySelector('.top-left').innerText);
-        }
-
-        function loadAppData() {
-            const savedApps = JSON.parse(localStorage.getItem('apps'));
-            const savedAppCount = localStorage.getItem('appCount');
-            const savedBalance = localStorage.getItem('balance');
-            const savedTopLeftText = localStorage.getItem('topLeftText');
-
-            if (savedApps) {
-                savedApps.forEach(appData => {
-                    const appCard = document.createElement('div');
-                    appCard.classList.add('app-card');
-                    appCard.id = appData.id;
-                    appCard.style.backgroundColor = appData.backgroundColor;
-                    appCard.innerHTML = `
-                        <h3>${appData.name}</h3>
-                        <p>Visits: ${appData.visits}</p>
-                        <p>Likes: ${appData.likes}</p>
-                        <p>Comments: ${appData.comments}</p>
-                        ${appData.premium ? '<p class="premium">Premium Purchase: 0</p>' : ''}
-                        ${appData.npc ? '<p class="appstore-purchases">AppStore Purchases: 0</p>' : ''}
-                        <button class="sell-button" onclick="showSellPopup('${appData.id.split('-')[1]}')">Sell</button>
-                        <span class="edit-icon" onclick="showEditPopup('${appData.id.split('-')[1]}')">✏️</span>
-                    `;
-
-                    if (appData.price) {
-                        const priceP = document.createElement('p');
-                        priceP.innerText = `Price: £${appData.price}`;
-                        appCard.insertBefore(priceP, appCard.querySelector('.sell-button'));
-                        appCard.dataset.price = appData.price;
-                    }
-
-                    if (appData.isFamous) {
-                        appCard.classList.add('famous');
-                        appCard.querySelector('h3').style.color = '#FFD700';
-                        appCard.querySelectorAll('p').forEach(p => p.style.color = '#FFD700');
-                    }
-
-                    document.getElementById('app-container').appendChild(appCard);
-                    startIntervals(appCard);
-                    if (appData.npc) {
-                        setInterval(() => updateAppStorePurchases(appCard), 5000);
-                    }
-                });
-
-                appCount = parseInt(savedAppCount);
-                balance = parseInt(savedBalance);
-                document.querySelector('.bottom-right').innerText = `Balance: £${balance}`;
-                document.querySelector('.top-left').innerText = savedTopLeftText;
-            }
-        }
-    </script>
+      }
+      if (e.key === "Escape") {
+        closeSidebar();
+      }
+    });
+  </script>
 </body>
 </html>
